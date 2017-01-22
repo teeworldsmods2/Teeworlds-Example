@@ -1,5 +1,3 @@
-CheckVersion("0.4")
-
 Import("configure.lua")
 
 --- Setup Config -------
