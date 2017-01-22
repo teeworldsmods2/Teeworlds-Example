@@ -178,8 +178,6 @@ function build(settings)
 	end
 
 	-- build the small libraries
-	wavpack = Compile(settings, Collect("src/engine/external/wavpack/*.c"))
-	pnglite = Compile(settings, Collect("src/engine/external/pnglite/*.c"))
 
 	-- build game components
 	engine_settings = settings:Copy()
