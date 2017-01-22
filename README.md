@@ -28,6 +28,7 @@ Features:
 - Content related to master server removed (necropotame)
 - Content related to version server removed (necropotame)
 - Content related to tools removed (necropotame)
+- Content related to vanilla gametypes removed (necropotame)
 - readme.txt updated and renamed
 - compatibility with bam 0.5.0 (heinrich5991)
 
