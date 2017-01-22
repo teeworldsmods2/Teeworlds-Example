@@ -178,6 +178,7 @@ function build(settings)
 	end
 
 	-- build the small libraries
+	md5 = Compile(settings, Collect("src/engine/external/md5/*.c"))
 
 	-- build game components
 	engine_settings = settings:Copy()
@@ -203,7 +204,7 @@ function build(settings)
 
 	-- build server
 	server_exe = Link(server_settings, "teeworlds_srv", engine, server,
-		game_shared, game_server, zlib, server_link_other)
+		game_shared, game_server, zlib, md5, server_link_other)
 
 	serverlaunch = {}
 	if platform == "macosx" then

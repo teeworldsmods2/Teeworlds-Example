@@ -33,3 +33,10 @@ Features:
 - readme.txt updated and renamed
 - compatibility with bam 0.5.0 (heinrich5991)
 
+antispoof branch
+---------------------------
+Author: east, heinrich5991, def-
+Features:
+- Antispoof system (east, heinrich5991, def-)
+
+

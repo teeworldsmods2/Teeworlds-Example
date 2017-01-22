@@ -4,6 +4,11 @@
 #include "config.h"
 #include "network.h"
 
+static SECURITY_TOKEN ToSecurityToken(const unsigned char* pData)
+{
+	return (int)pData[0] | (pData[1] << 8) | (pData[2] << 16) | (pData[3] << 24);
+}
+
 void CNetConnection::ResetStats()
 {
 	mem_zero(&m_Stats, sizeof(m_Stats));
@@ -21,6 +26,8 @@ void CNetConnection::Reset()
 	m_LastRecvTime = 0;
 	m_LastUpdateTime = 0;
 	m_Token = -1;
+	m_UnknownSeq = false;
+	m_SecurityToken = NET_SECURITY_TOKEN_UNKNOWN;
 	mem_zero(&m_PeerAddr, sizeof(m_PeerAddr));
 
 	m_Buffer.Init();
@@ -76,7 +83,7 @@ int CNetConnection::Flush()
 
 	// send of the packets
 	m_Construct.m_Ack = m_Ack;
-	CNetBase::SendPacket(m_Socket, &m_PeerAddr, &m_Construct);
+	CNetBase::SendPacket(m_Socket, &m_PeerAddr, &m_Construct, m_SecurityToken);
 
 	// update send times
 	m_LastSendTime = time_get();
@@ -146,7 +153,7 @@ void CNetConnection::SendControl(int ControlMsg, const void *pExtra, int ExtraSi
 {
 	// send the control message
 	m_LastSendTime = time_get();
-	CNetBase::SendControlMsg(m_Socket, &m_PeerAddr, m_Ack, ControlMsg, pExtra, ExtraSize);
+	CNetBase::SendControlMsg(m_Socket, &m_PeerAddr, m_Ack, ControlMsg, pExtra, ExtraSize, m_SecurityToken);
 }
 
 void CNetConnection::ResendChunk(CNetChunkResend *pResend)
@@ -199,8 +206,39 @@ void CNetConnection::Disconnect(const char *pReason)
 	Reset();
 }
 
+void CNetConnection::DirectInit(NETADDR &Addr, SECURITY_TOKEN SecurityToken)
+{
+	Reset();
+
+	m_State = NET_CONNSTATE_ONLINE;
+
+	m_PeerAddr = Addr;
+	mem_zero(m_ErrorString, sizeof(m_ErrorString));
+
+	int64 Now = time_get();
+	m_LastSendTime = Now;
+	m_LastRecvTime = Now;
+	m_LastUpdateTime = Now;
+
+	m_SecurityToken = SecurityToken;
+}
+
 int CNetConnection::Feed(CNetPacketConstruct *pPacket, NETADDR *pAddr)
 {
+	if (State() != NET_CONNSTATE_OFFLINE && m_SecurityToken != NET_SECURITY_TOKEN_UNKNOWN && m_SecurityToken != NET_SECURITY_TOKEN_UNSUPPORTED)
+	{
+		// supposed to have a valid token in this packet, check it
+		if (pPacket->m_DataSize < (int)sizeof(m_SecurityToken))
+			return 0;
+		pPacket->m_DataSize -= sizeof(m_SecurityToken);
+		if (m_SecurityToken != ToSecurityToken(&pPacket->m_aChunkData[pPacket->m_DataSize]))
+		{
+			if(g_Config.m_Debug)
+				dbg_msg("security", "token mismatch, expected %d got %d", m_SecurityToken, ToSecurityToken(&pPacket->m_aChunkData[pPacket->m_DataSize]));
+			return 0;
+		}
+	}
+
 	// check if actual ack value is valid(own sequence..latest peer ack)
 	if(m_Sequence >= m_PeerAck)
 	{
