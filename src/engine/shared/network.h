@@ -329,43 +329,6 @@ public:
 	class CNetBan *NetBan() const { return m_pNetBan; }
 };
 
-
-
-// client side
-class CNetClient
-{
-	NETADDR m_ServerAddr;
-	CNetConnection m_Connection;
-	CNetRecvUnpacker m_RecvUnpacker;
-	NETSOCKET m_Socket;
-public:
-	// openness
-	bool Open(NETADDR BindAddr, int Flags);
-	int Close();
-
-	// connection state
-	int Disconnect(const char *Reason);
-	int Connect(NETADDR *Addr);
-
-	// communication
-	int Recv(CNetChunk *Chunk);
-	int Send(CNetChunk *Chunk);
-
-	// pumping
-	int Update();
-	int Flush();
-
-	int ResetErrorString();
-
-	// error and state
-	int NetType() const { return m_Socket.type; }
-	int State();
-	int GotProblems();
-	const char *ErrorString();
-};
-
-
-
 // TODO: both, fix these. This feels like a junk class for stuff that doesn't fit anywere
 class CNetBase
 {
