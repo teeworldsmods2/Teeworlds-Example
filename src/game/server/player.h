@@ -28,6 +28,8 @@ public:
 	void PostTick();
 	void Snap(int SnappingClient);
 
+	void FakeSnap(int SnappingClient);
+	
 	void OnDirectInput(CNetObj_PlayerInput *NewInput);
 	void OnPredictedInput(CNetObj_PlayerInput *NewInput);
 	void OnDisconnect(const char *pReason);

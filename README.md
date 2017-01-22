@@ -33,3 +33,9 @@ Features:
 - readme.txt updated and renamed
 - compatibility with bam 0.5.0 (heinrich5991)
 
+64players branch
+---------------------------
+Author: DDNet team, Neox
+
+Features:
+- Allows 64 players to join on the server
