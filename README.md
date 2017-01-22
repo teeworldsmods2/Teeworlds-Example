@@ -22,6 +22,7 @@ Originally written by Magnus Auvinen.
 tw06server branch
 ---------------------------
 Author: necropotame, heinrich5991
+
 Features:
 - Content related to client removed (necropotame)
 - Content related to editor removed (necropotame)
