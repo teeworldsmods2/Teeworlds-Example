@@ -54,6 +54,9 @@ class CGameContext : public IGameServer
 	CNetObjHandler m_NetObjHandler;
 	CTuningParams m_Tuning;
 
+	static void ConsoleOutputCallback_Chat(const char *pStr, void *pUser);
+
+	static void ConAbout(IConsole::IResult *pResult, void *pUserData);
 	static void ConTuneParam(IConsole::IResult *pResult, void *pUserData);
 	static void ConTuneReset(IConsole::IResult *pResult, void *pUserData);
 	static void ConTuneDump(IConsole::IResult *pResult, void *pUserData);
@@ -78,6 +81,10 @@ class CGameContext : public IGameServer
 	void Construct(int Resetting);
 
 	bool m_Resetting;
+	
+	int m_ConsoleOutputHandle_ChatPrint;
+	int m_ConsoleOutput_Target;
+	
 public:
 	IServer *Server() const { return m_pServer; }
 	class IConsole *Console() { return m_pConsole; }

@@ -33,6 +33,7 @@ class CConsole : public IConsole
 	};
 
 	int m_FlagMask;
+	int m_ClientID;
 	bool m_StoreCommands;
 	const char *m_paStrokeStr[2];
 	CCommand *m_pFirstCommand;
@@ -172,10 +173,12 @@ public:
 	virtual bool LineIsValid(const char *pStr);
 	virtual void ExecuteLine(const char *pStr);
 	virtual void ExecuteLineFlag(const char *pStr, int FlagMask);
+	virtual void ExecuteLineClient(const char *pStr, int ClientID, int Level, int FlagMask);
 	virtual void ExecuteFile(const char *pFilename);
 
 	virtual int RegisterPrintCallback(int OutputLevel, FPrintCallback pfnPrintCallback, void *pUserData);
 	virtual void SetPrintOutputLevel(int Index, int OutputLevel);
+	virtual void SetPrintOutputLevel_Hard(int Index, int OutputLevel);
 	virtual void Print(int Level, const char *pFrom, const char *pStr);
 
 	void SetAccessLevel(int AccessLevel) { m_AccessLevel = clamp(AccessLevel, (int)(ACCESS_LEVEL_ADMIN), (int)(ACCESS_LEVEL_MOD)); }
