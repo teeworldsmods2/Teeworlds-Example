@@ -16,9 +16,12 @@ public:
 		OUTPUT_LEVEL_STANDARD=0,
 		OUTPUT_LEVEL_ADDINFO,
 		OUTPUT_LEVEL_DEBUG,
+		OUTPUT_LEVEL_CHAT,
+		NUM_OUTPUT_LEVELS,
 
 		ACCESS_LEVEL_ADMIN=0,
 		ACCESS_LEVEL_MOD,
+		ACCESS_LEVEL_USER,
 
 		TEMPCMD_NAME_LENGTH=32,
 		TEMPCMD_HELP_LENGTH=96,
@@ -79,11 +82,13 @@ public:
 	virtual bool LineIsValid(const char *pStr) = 0;
 	virtual void ExecuteLine(const char *Sptr) = 0;
 	virtual void ExecuteLineFlag(const char *Sptr, int FlasgMask) = 0;
+	virtual void ExecuteLineClient(const char *pStr, int ClientID, int Level, int FlagMask) = 0;
 	virtual void ExecuteLineStroked(int Stroke, const char *pStr) = 0;
 	virtual void ExecuteFile(const char *pFilename) = 0;
 
 	virtual int RegisterPrintCallback(int OutputLevel, FPrintCallback pfnPrintCallback, void *pUserData) = 0;
 	virtual void SetPrintOutputLevel(int Index, int OutputLevel) = 0;
+	virtual void SetPrintOutputLevel_Hard(int Index, int OutputLevel) = 0;
 	virtual void Print(int Level, const char *pFrom, const char *pStr) = 0;
 
 	virtual void SetAccessLevel(int AccessLevel) = 0;
