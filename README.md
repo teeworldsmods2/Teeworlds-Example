@@ -40,4 +40,9 @@ Author: east, heinrich5991, def-
 Features:
 - Antispoof system (east, heinrich5991, def-)
 
+64players branch
+---------------------------
+Author: DDNet team, Neox
 
+Features:
+- Allows 64 players to join on the server
