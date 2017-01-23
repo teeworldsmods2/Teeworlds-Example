@@ -180,7 +180,7 @@ int CConsole::RegisterPrintCallback(int OutputLevel, FPrintCallback pfnPrintCall
 	if(m_NumPrintCB == MAX_PRINT_CB)
 		return -1;
 
-	m_aPrintCB[m_NumPrintCB].m_OutputLevel = clamp(OutputLevel, (int)(OUTPUT_LEVEL_STANDARD), (int)(OUTPUT_LEVEL_DEBUG));
+	m_aPrintCB[m_NumPrintCB].m_OutputLevel = clamp(OutputLevel, 0, (int) NUM_OUTPUT_LEVELS-1);
 	m_aPrintCB[m_NumPrintCB].m_pfnPrintCallback = pfnPrintCallback;
 	m_aPrintCB[m_NumPrintCB].m_pPrintCallbackUserdata = pUserData;
 	return m_NumPrintCB++;
@@ -188,8 +188,13 @@ int CConsole::RegisterPrintCallback(int OutputLevel, FPrintCallback pfnPrintCall
 
 void CConsole::SetPrintOutputLevel(int Index, int OutputLevel)
 {
+	SetPrintOutputLevel_Hard(Index, clamp(OutputLevel, 0, (int) NUM_OUTPUT_LEVELS-1));
+}
+
+void CConsole::SetPrintOutputLevel_Hard(int Index, int OutputLevel)
+{
 	if(Index >= 0 && Index < MAX_PRINT_CB)
-		m_aPrintCB[Index].m_OutputLevel = clamp(OutputLevel, (int)(OUTPUT_LEVEL_STANDARD), (int)(OUTPUT_LEVEL_DEBUG));
+		m_aPrintCB[Index].m_OutputLevel = OutputLevel;
 }
 
 void CConsole::Print(int Level, const char *pFrom, const char *pStr)
@@ -197,7 +202,15 @@ void CConsole::Print(int Level, const char *pFrom, const char *pStr)
 	dbg_msg(pFrom ,"%s", pStr);
 	for(int i = 0; i < m_NumPrintCB; ++i)
 	{
-		if(Level <= m_aPrintCB[i].m_OutputLevel && m_aPrintCB[i].m_pfnPrintCallback)
+		if(!m_aPrintCB[i].m_pfnPrintCallback)
+			continue;
+		
+		if(m_aPrintCB[i].m_OutputLevel == OUTPUT_LEVEL_CHAT)
+		{
+			if(Level == OUTPUT_LEVEL_CHAT)
+				m_aPrintCB[i].m_pfnPrintCallback(pStr, m_aPrintCB[i].m_pPrintCallbackUserdata);
+		}
+		else if(Level <= m_aPrintCB[i].m_OutputLevel)
 		{
 			char aBuf[1024];
 			str_format(aBuf, sizeof(aBuf), "[%s]: %s", pFrom, pStr);
@@ -257,6 +270,10 @@ bool CConsole::LineIsValid(const char *pStr)
 
 void CConsole::ExecuteLineStroked(int Stroke, const char *pStr)
 {
+	int OutputLevel = OUTPUT_LEVEL_STANDARD;
+	if(m_FlagMask&CFGFLAG_CHAT)
+		OutputLevel = OUTPUT_LEVEL_CHAT;
+	
 	while(pStr && *pStr)
 	{
 		CResult Result;
@@ -313,7 +330,7 @@ void CConsole::ExecuteLineStroked(int Stroke, const char *pStr)
 					{
 						char aBuf[256];
 						str_format(aBuf, sizeof(aBuf), "Invalid arguments... Usage: %s %s", pCommand->m_pName, pCommand->m_pParams);
-						Print(OUTPUT_LEVEL_STANDARD, "Console", aBuf);
+						Print(OutputLevel, "Console", aBuf);
 					}
 					else if(m_StoreCommands && pCommand->m_Flags&CFGFLAG_STORE)
 					{
@@ -330,14 +347,14 @@ void CConsole::ExecuteLineStroked(int Stroke, const char *pStr)
 			{
 				char aBuf[256];
 				str_format(aBuf, sizeof(aBuf), "Access for command %s denied.", Result.m_pCommand);
-				Print(OUTPUT_LEVEL_STANDARD, "Console", aBuf);
+				Print(OutputLevel, "Console", aBuf);
 			}
 		}
 		else if(Stroke)
 		{
 			char aBuf[256];
 			str_format(aBuf, sizeof(aBuf), "No such command: %s.", Result.m_pCommand);
-			Print(OUTPUT_LEVEL_STANDARD, "Console", aBuf);
+			Print(OutputLevel, "Console", aBuf);
 		}
 
 		pStr = pNextPart;
@@ -384,6 +401,19 @@ void CConsole::ExecuteLineFlag(const char *pStr, int FlagMask)
 	m_FlagMask = Temp;
 }
 
+void CConsole::ExecuteLineClient(const char *pStr, int ClientID, int Level, int FlagMask)
+{
+	int TmpMask = m_FlagMask;
+	int TmpLevel = m_AccessLevel;
+	int TmpClientID = m_ClientID;
+	m_FlagMask = FlagMask;
+	m_AccessLevel = Level;
+	m_ClientID = ClientID;
+	ExecuteLine(pStr);
+	m_ClientID = TmpClientID;
+	m_AccessLevel = TmpLevel;
+	m_FlagMask = TmpMask;
+}
 
 void CConsole::ExecuteFile(const char *pFilename)
 {
@@ -756,6 +786,9 @@ void CConsole::Register(const char *pName, const char *pParams,
 
 	pCommand->m_Flags = Flags;
 	pCommand->m_Temp = false;
+	
+	if(Flags & CFGFLAG_CHAT)
+		pCommand->SetAccessLevel(IConsole::ACCESS_LEVEL_USER);
 
 	if(DoAdd)
 		AddCommandSorted(pCommand);

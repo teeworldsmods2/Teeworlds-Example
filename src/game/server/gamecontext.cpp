@@ -31,6 +31,8 @@ void CGameContext::Construct(int Resetting)
 	m_pVoteOptionLast = 0;
 	m_NumVoteOptions = 0;
 	m_LockTeams = 0;
+	m_ConsoleOutputHandle_ChatPrint = -1;
+	m_ConsoleOutput_Target = -1;
 
 	if(Resetting==NO_RESET)
 		m_pVoteOptionHeap = new CHeap();
@@ -601,6 +603,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				return;
 
 			CNetMsg_Cl_Say *pMsg = (CNetMsg_Cl_Say *)pRawMsg;
+			if(!str_utf8_check(pMsg->m_pMessage))
+			{
+				return;
+			}
 			int Team = pMsg->m_Team ? pPlayer->GetTeam() : CGameContext::CHAT_ALL;
 			
 			// trim right and set maximum length to 128 utf8-characters
@@ -632,12 +638,24 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				*(const_cast<char *>(pEnd)) = 0;
 
 			// drop empty and autocreated spam messages (more than 16 characters per second)
-			if(Length == 0 || (g_Config.m_SvSpamprotection && pPlayer->m_LastChat && pPlayer->m_LastChat+Server()->TickSpeed()*((15+Length)/16) > Server()->Tick()))
+			if(Length == 0 || (pMsg->m_pMessage[0] != '/' && g_Config.m_SvSpamprotection && pPlayer->m_LastChat && pPlayer->m_LastChat+Server()->TickSpeed()*((15+Length)/16) > Server()->Tick()))
 				return;
 
 			pPlayer->m_LastChat = Server()->Tick();
-
-			SendChat(ClientID, Team, pMsg->m_pMessage);
+			
+			if(pMsg->m_pMessage[0]=='/')
+			{
+				if(m_ConsoleOutputHandle_ChatPrint >= 0)
+				{
+					m_ConsoleOutput_Target = ClientID;
+					Console()->ExecuteLineClient(pMsg->m_pMessage + 1, IConsole::ACCESS_LEVEL_USER, ClientID, CFGFLAG_CHAT);
+					m_ConsoleOutput_Target = -1;
+				}
+			}
+			else
+			{
+				SendChat(ClientID, Team, pMsg->m_pMessage);
+			}
 		}
 		else if(MsgID == NETMSGTYPE_CL_CALLVOTE)
 		{
@@ -1424,11 +1442,46 @@ void CGameContext::ConchainSpecialMotdupdate(IConsole::IResult *pResult, void *p
 	}
 }
 
+void CGameContext::ConAbout(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext* pThis = (CGameContext*) pUserData;
+	
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf), "%s %s by %s", MOD_NAME, MOD_VERSION, MOD_AUTHORS);
+	pThis->Console()->Print(IConsole::OUTPUT_LEVEL_CHAT, "chat", aBuf);
+	
+	if(MOD_CREDITS[0])
+	{
+		str_format(aBuf, sizeof(aBuf), "Credits: %s", MOD_CREDITS);
+		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_CHAT, "chat", aBuf);
+	}
+	if(MOD_THANKS[0])
+	{
+		str_format(aBuf, sizeof(aBuf), "Thanks to: %s", MOD_THANKS);
+		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_CHAT, "chat", aBuf);
+	}
+	if(MOD_SOURCES[0])
+	{
+		str_format(aBuf, sizeof(aBuf), "Sources: %s", MOD_SOURCES);
+		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_CHAT, "chat", aBuf);
+	}
+}
+
+void CGameContext::ConsoleOutputCallback_Chat(const char *pStr, void *pUser)
+{
+	CGameContext* pThis = (CGameContext*) pUser;
+	if(pThis->m_ConsoleOutput_Target >= 0 && pThis->m_ConsoleOutput_Target < MAX_CLIENTS)
+		pThis->SendChatTarget(pThis->m_ConsoleOutput_Target, pStr);
+}
+
 void CGameContext::OnConsoleInit()
 {
 	m_pServer = Kernel()->RequestInterface<IServer>();
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
 
+	m_ConsoleOutputHandle_ChatPrint = Console()->RegisterPrintCallback(0, ConsoleOutputCallback_Chat, this);
+	Console()->SetPrintOutputLevel_Hard(m_ConsoleOutputHandle_ChatPrint, IConsole::OUTPUT_LEVEL_CHAT);
+	
 	Console()->Register("tune", "si", CFGFLAG_SERVER, ConTuneParam, this, "Tune variable to value");
 	Console()->Register("tune_reset", "", CFGFLAG_SERVER, ConTuneReset, this, "Reset tuning");
 	Console()->Register("tune_dump", "", CFGFLAG_SERVER, ConTuneDump, this, "Dump tuning");
@@ -1449,7 +1502,9 @@ void CGameContext::OnConsoleInit()
 	Console()->Register("force_vote", "ss?r", CFGFLAG_SERVER, ConForceVote, this, "Force a voting option");
 	Console()->Register("clear_votes", "", CFGFLAG_SERVER, ConClearVotes, this, "Clears the voting options");
 	Console()->Register("vote", "r", CFGFLAG_SERVER, ConVote, this, "Force a vote to yes/no");
-
+	
+	Console()->Register("about", "", CFGFLAG_CHAT, ConAbout, this, "Show information about the mod");
+	
 	Console()->Chain("sv_motd", ConchainSpecialMotdupdate, this);
 }
 
