@@ -1095,6 +1095,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 	char aBuf[128];
 
 	// count the players
+	int MaxClients = m_NetServer.MaxClients();
 	int PlayerCount = 0, ClientCount = 0;
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -1109,14 +1110,26 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 
 	p.Reset();
 
-	p.AddRaw(Extended?SERVERBROWSE_INFO64:SERVERBROWSE_INFO, sizeof(Extended?SERVERBROWSE_INFO64:SERVERBROWSE_INFO));
+	if(Extended)
+		p.AddRaw(SERVERBROWSE_INFO64, sizeof(SERVERBROWSE_INFO64));
+	else
+		p.AddRaw(SERVERBROWSE_INFO, sizeof(SERVERBROWSE_INFO));
+	
 	str_format(aBuf, sizeof(aBuf), "%d", Token);
 	p.AddString(aBuf, 6);
 
 	p.AddString(GameServer()->Version(), 32);
 	if (Extended)
 	{
-        p.AddString(g_Config.m_SvName, 256);
+		if (MaxClients <= MAX_CLIENTS)
+		{
+			p.AddString(g_Config.m_SvName, 256);
+		}
+		else
+		{
+			str_format(aBuf, sizeof(aBuf), "%s [%d/%d]", g_Config.m_SvName, ClientCount, m_NetServer.MaxClients());
+			p.AddString(aBuf, 256);
+		}
 	}
 	else
 	{
@@ -1124,14 +1137,20 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 			p.AddString(g_Config.m_SvName, 64);
 		else
 		{
-			str_format(aBuf, sizeof(aBuf), "%s - %d/%d online", g_Config.m_SvName, ClientCount, m_NetServer.MaxClients());
+			str_format(aBuf, sizeof(aBuf), "%s [%d/%d]", g_Config.m_SvName, ClientCount, m_NetServer.MaxClients());
 			p.AddString(aBuf, 64);
 		}
 	}
 	p.AddString(GetMapName(), 32);
 	
 	// gametype
-	p.AddString(GameServer()->GameType(), 16);
+	if(MaxClients > VANILLA_MAX_CLIENTS)
+	{
+		str_format(aBuf, sizeof(aBuf), "%s%d", GameServer()->GameType(), 64);
+		p.AddString(aBuf, 16);
+	}
+	else
+		p.AddString(GameServer()->GameType(), 16);
 
 	// flags
 	int i = 0;
@@ -1140,7 +1159,6 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 	str_format(aBuf, sizeof(aBuf), "%d", i);
 	p.AddString(aBuf, 2);
 	
-	int MaxClients = m_NetServer.MaxClients();
 	if (!Extended)
 	{
 		if (ClientCount >= VANILLA_MAX_CLIENTS)
@@ -1201,7 +1219,10 @@ void CServer::UpdateServerInfo()
 	for(int i = 0; i < MAX_CLIENTS; ++i)
 	{
 		if(m_aClients[i].m_State != CClient::STATE_EMPTY)
-			SendServerInfo(m_NetServer.ClientAddr(i), -1);
+		{
+			SendServerInfo(m_NetServer.ClientAddr(i), -1, true);
+			SendServerInfo(m_NetServer.ClientAddr(i), -1, false);
+		}
 	}
 }
 
@@ -1220,15 +1241,25 @@ void CServer::PumpNetwork()
 			// stateless
 			if(!m_Register.RegisterProcessPacket(&Packet))
 			{
+				bool ServerInfo = false;
+				bool Extended = false;
+
 				if(Packet.m_DataSize == sizeof(SERVERBROWSE_GETINFO)+1 &&
 					mem_comp(Packet.m_pData, SERVERBROWSE_GETINFO, sizeof(SERVERBROWSE_GETINFO)) == 0)
 				{
-					SendServerInfo(&Packet.m_Address, ((unsigned char *)Packet.m_pData)[sizeof(SERVERBROWSE_GETINFO)]);
-				}				
-				else if(Packet.m_DataSize == sizeof(SERVERBROWSE_GETINFO64)+1 &&				
+					ServerInfo = true;
+					Extended = false;
+				}
+				else if(Packet.m_DataSize == sizeof(SERVERBROWSE_GETINFO64)+1 &&
 					mem_comp(Packet.m_pData, SERVERBROWSE_GETINFO64, sizeof(SERVERBROWSE_GETINFO64)) == 0)
 				{
-					SendServerInfo(&Packet.m_Address, ((unsigned char *)Packet.m_pData)[sizeof(SERVERBROWSE_GETINFO64)], true);
+					ServerInfo = true;
+					Extended = true;
+				}
+				if(ServerInfo)
+				{
+					int Token = ((unsigned char *)Packet.m_pData)[sizeof(SERVERBROWSE_GETINFO)];
+					SendServerInfo(&Packet.m_Address, Token, Extended);
 				}
 			}
 		}
