@@ -33,3 +33,9 @@ Features:
 - readme.txt updated and renamed
 - compatibility with bam 0.5.0 (heinrich5991)
 
+tw06playertune branch
+---------------------------
+Author: necropotame
+
+Features:
+- Add per-player tune system (necropotame)

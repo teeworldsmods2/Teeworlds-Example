@@ -45,6 +45,14 @@ public:
 	bool Set(const char *pName, float Value);
 	bool Get(int Index, float *pValue);
 	bool Get(const char *pName, float *pValue);
+
+	bool operator==(const CTuningParams& TuningParams)
+	{
+		#define MACRO_TUNING_PARAM(Name,ScriptName,Value) if(m_##Name != TuningParams.m_##Name) return false;
+		#include "tuning.h"
+		#undef MACRO_TUNING_PARAM
+		return true;
+	}
 };
 
 
@@ -196,8 +204,8 @@ public:
 
 	void Init(CWorldCore *pWorld, CCollision *pCollision);
 	void Reset();
-	void Tick(bool UseInput);
-	void Move();
+	void Tick(bool UseInput, const CTuningParams* pTuningParams);
+	void Move(const CTuningParams* pTuningParams);
 
 	void Read(const CNetObj_CharacterCore *pObjCore);
 	void Write(CNetObj_CharacterCore *pObjCore);
