@@ -126,37 +126,38 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos)
 }
 
 
-bool IGameController::OnEntity(int Index, vec2 Pos)
+bool IGameController::OnEntity(const char* pName, vec2 Pivot, vec2 P0, vec2 P1, vec2 P2, vec2 P3, int PosEnv)
 {
+	vec2 Pos = (P0 + P1 + P2 + P3)/4.0f;
 	int Type = -1;
 	int SubType = 0;
 
-	if(Index == ENTITY_SPAWN)
+	if(str_comp(pName, "spawn") == 0)
 		m_aaSpawnPoints[0][m_aNumSpawnPoints[0]++] = Pos;
-	else if(Index == ENTITY_SPAWN_RED)
+	else if(str_comp(pName, "spawnRed") == 0)
 		m_aaSpawnPoints[1][m_aNumSpawnPoints[1]++] = Pos;
-	else if(Index == ENTITY_SPAWN_BLUE)
+	else if(str_comp(pName, "spawnBlue") == 0)
 		m_aaSpawnPoints[2][m_aNumSpawnPoints[2]++] = Pos;
-	else if(Index == ENTITY_ARMOR_1)
+	else if(str_comp(pName, "armor") == 0)
 		Type = POWERUP_ARMOR;
-	else if(Index == ENTITY_HEALTH_1)
+	else if(str_comp(pName, "health") == 0)
 		Type = POWERUP_HEALTH;
-	else if(Index == ENTITY_WEAPON_SHOTGUN)
+	else if(str_comp(pName, "shotgun") == 0)
 	{
 		Type = POWERUP_WEAPON;
 		SubType = WEAPON_SHOTGUN;
 	}
-	else if(Index == ENTITY_WEAPON_GRENADE)
+	else if(str_comp(pName, "grenade") == 0)
 	{
 		Type = POWERUP_WEAPON;
 		SubType = WEAPON_GRENADE;
 	}
-	else if(Index == ENTITY_WEAPON_RIFLE)
+	else if(str_comp(pName, "rifle") == 0)
 	{
 		Type = POWERUP_WEAPON;
 		SubType = WEAPON_RIFLE;
 	}
-	else if(Index == ENTITY_POWERUP_NINJA && g_Config.m_SvPowerups)
+	else if(str_comp(pName, "ninja") == 0 && g_Config.m_SvPowerups)
 	{
 		Type = POWERUP_NINJA;
 		SubType = WEAPON_NINJA;
@@ -164,7 +165,7 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 
 	if(Type != -1)
 	{
-		CPickup *pPickup = new CPickup(&GameServer()->m_World, Type, SubType);
+		CPickup *pPickup = new CPickup(&GameServer()->m_World, Type, SubType, Pivot, Pos - Pivot, PosEnv);
 		pPickup->m_Pos = Pos;
 		return true;
 	}
@@ -762,4 +763,9 @@ int IGameController::ClampTeam(int Team)
 	if(IsTeamplay())
 		return Team&1;
 	return 0;
+}
+
+double IGameController::GetTime()
+{
+	return static_cast<double>(Server()->Tick() - m_RoundStartTick)/Server()->TickSpeed();
 }

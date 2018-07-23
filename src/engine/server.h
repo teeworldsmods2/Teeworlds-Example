@@ -96,6 +96,8 @@ public:
 	virtual const char *GameType() = 0;
 	virtual const char *Version() = 0;
 	virtual const char *NetVersion() = 0;
+
+	virtual class CLayers *Layers() = 0;
 };
 
 extern IGameServer *CreateGameServer();

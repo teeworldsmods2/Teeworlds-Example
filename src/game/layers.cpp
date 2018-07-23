@@ -1,6 +1,7 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include "layers.h"
+#include "gamecore.h"
 
 CLayers::CLayers()
 {
@@ -10,6 +11,8 @@ CLayers::CLayers()
 	m_LayersStart = 0;
 	m_pGameGroup = 0;
 	m_pGameLayer = 0;
+	m_pZoneGroup = 0;
+	m_pEntityGroup = 0;
 	m_pMap = 0;
 }
 
@@ -22,34 +25,45 @@ void CLayers::Init(class IKernel *pKernel)
 	for(int g = 0; g < NumGroups(); g++)
 	{
 		CMapItemGroup *pGroup = GetGroup(g);
-		for(int l = 0; l < pGroup->m_NumLayers; l++)
+		
+		char aGroupName[12];
+		IntsToStr(pGroup->m_aName, sizeof(aGroupName)/sizeof(int), aGroupName);
+
+		if(str_comp(aGroupName, "#Zones") == 0)
+			m_pZoneGroup = pGroup;
+		else if(str_comp(aGroupName, "#Entities") == 0)
+			m_pEntityGroup = pGroup;
+		else
 		{
-			CMapItemLayer *pLayer = GetLayer(pGroup->m_StartLayer+l);
-
-			if(pLayer->m_Type == LAYERTYPE_TILES)
+			for(int l = 0; l < pGroup->m_NumLayers; l++)
 			{
-				CMapItemLayerTilemap *pTilemap = reinterpret_cast<CMapItemLayerTilemap *>(pLayer);
-				if(pTilemap->m_Flags&TILESLAYERFLAG_GAME)
+				CMapItemLayer *pLayer = GetLayer(pGroup->m_StartLayer+l);
+
+				if(pLayer->m_Type == LAYERTYPE_TILES)
 				{
-					m_pGameLayer = pTilemap;
-					m_pGameGroup = pGroup;
-
-					// make sure the game group has standard settings
-					m_pGameGroup->m_OffsetX = 0;
-					m_pGameGroup->m_OffsetY = 0;
-					m_pGameGroup->m_ParallaxX = 100;
-					m_pGameGroup->m_ParallaxY = 100;
-
-					if(m_pGameGroup->m_Version >= 2)
+					CMapItemLayerTilemap *pTilemap = reinterpret_cast<CMapItemLayerTilemap *>(pLayer);
+					if(pTilemap->m_Flags&TILESLAYERFLAG_GAME)
 					{
-						m_pGameGroup->m_UseClipping = 0;
-						m_pGameGroup->m_ClipX = 0;
-						m_pGameGroup->m_ClipY = 0;
-						m_pGameGroup->m_ClipW = 0;
-						m_pGameGroup->m_ClipH = 0;
-					}
+						m_pGameLayer = pTilemap;
+						m_pGameGroup = pGroup;
 
-					break;
+						// make sure the game group has standard settings
+						m_pGameGroup->m_OffsetX = 0;
+						m_pGameGroup->m_OffsetY = 0;
+						m_pGameGroup->m_ParallaxX = 100;
+						m_pGameGroup->m_ParallaxY = 100;
+
+						if(m_pGameGroup->m_Version >= 2)
+						{
+							m_pGameGroup->m_UseClipping = 0;
+							m_pGameGroup->m_ClipX = 0;
+							m_pGameGroup->m_ClipY = 0;
+							m_pGameGroup->m_ClipW = 0;
+							m_pGameGroup->m_ClipH = 0;
+						}
+
+						break;
+					}
 				}
 			}
 		}
