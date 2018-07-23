@@ -109,6 +109,15 @@ private:
 	bool m_Spawning;
 	int m_ClientID;
 	int m_Team;
+
+private:
+	CTuningParams m_PrevTuningParams;
+	CTuningParams m_NextTuningParams;
+
+void HandleTuningParams(); //This function will send the new parameters if needed
+
+public:
+	CTuningParams* GetNextTuningParams() { return &m_NextTuningParams; };
 };
 
 #endif

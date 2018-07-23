@@ -46,3 +46,17 @@ Author: DDNet team, Neox
 
 Features:
 - Allows 64 players to join on the server
+
+ptum branch
+---------------------------
+Author: necropotame
+
+Features:
+- Add TeeUniverse Portable Maps compatibility (necropotame)
+
+playertune branch
+---------------------------
+Author: necropotame
+
+Features:
+- Add per-player tune system (necropotame)
