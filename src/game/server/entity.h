@@ -156,4 +156,19 @@ public:
 	vec2 m_Pos;
 };
 
+class CAnimatedEntity : public CEntity
+{
+protected:
+	vec2 m_Pivot;
+	vec2 m_RelPosition;
+	int m_PosEnv;
+
+protected:
+	virtual void Tick();
+
+public:
+	CAnimatedEntity(CGameWorld *pGameWorld, int Objtype, vec2 Pivot);
+	CAnimatedEntity(CGameWorld *pGameWorld, int Objtype, vec2 Pivot, vec2 RelPosition, int PosEnv);
+};
+
 #endif

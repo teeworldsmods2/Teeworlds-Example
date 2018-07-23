@@ -7,10 +7,10 @@
 
 const int PickupPhysSize = 14;
 
-class CPickup : public CEntity
+class CPickup : public CAnimatedEntity
 {
 public:
-	CPickup(CGameWorld *pGameWorld, int Type, int SubType = 0);
+	CPickup(CGameWorld *pGameWorld, int Type, int SubType, vec2 Pivot, vec2 RelPos, int PosEnv);
 
 	virtual void Reset();
 	virtual void Tick();

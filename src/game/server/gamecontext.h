@@ -81,15 +81,18 @@ class CGameContext : public IGameServer
 	void Construct(int Resetting);
 
 	bool m_Resetting;
-	
+
 	int m_ConsoleOutputHandle_ChatPrint;
 	int m_ConsoleOutput_Target;
 	
+	int m_ZoneHandle_TeeWorlds;
+
 public:
 	IServer *Server() const { return m_pServer; }
 	class IConsole *Console() { return m_pConsole; }
 	CCollision *Collision() { return &m_Collision; }
 	CTuningParams *Tuning() { return &m_Tuning; }
+	virtual class CLayers *Layers() { return &m_Layers; }
 
 	CGameContext();
 	~CGameContext();
