@@ -4,6 +4,7 @@
 #define BASE_MATH_H
 
 #include <stdlib.h>
+#include <random>
 
 template <typename T>
 inline T clamp(T val, T min, T max)
@@ -33,6 +34,9 @@ inline T mix(const T a, const T b, TB amount)
 	return a + (b-a)*amount;
 }
 
+float random_float();
+bool random_prob(float f);
+int random_int(int Min, int Max);
 inline float frandom() { return rand()/(float)(RAND_MAX); }
 
 // float to fixed
@@ -65,6 +69,36 @@ const float pi = 3.1415926535897932384626433f;
 
 template <typename T> inline T min(T a, T b) { return a<b?a:b; }
 template <typename T> inline T max(T a, T b) { return a>b?a:b; }
-template <typename T> inline T absolute(T a) { return a<T(0)?-a:a; }
+template <typename T> inline T mt_absolute(T a) { return a<T(0)?-a:a; }
+
+template<typename T>
+constexpr inline T minimum(T a, T b)
+{
+	return a < b ? a : b;
+}
+
+template<typename T>
+constexpr inline T minimum(T a, T b, T c)
+{
+	return minimum(minimum(a, b), c);
+}
+
+template<typename T>
+constexpr inline T maximum(T a, T b)
+{
+	return a > b ? a : b;
+}
+
+template<typename T>
+constexpr inline T maximum(T a, T b, T c)
+{
+	return maximum(maximum(a, b), c);
+}
+
+template<typename T>
+constexpr inline T absolute(T a)
+{
+	return a < T(0) ? -a : a;
+}
 
 #endif // BASE_MATH_H

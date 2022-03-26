@@ -21,6 +21,9 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	m_SpectatorID = SPEC_FREEVIEW;
 	m_LastActionTick = Server()->Tick();
 	m_TeamChangeTick = Server()->Tick();
+	SetLanguage(Server()->GetClientLanguage(ClientID));
+
+	m_Authed = IServer::AUTHED_NO;
 
 	m_PrevTuningParams = *pGameServer->Tuning();
 	m_NextTuningParams = m_PrevTuningParams;
@@ -67,6 +70,7 @@ void CPlayer::Tick()
 		return;
 
 	Server()->SetClientScore(m_ClientID, m_Score);
+	Server()->SetClientLanguage(m_ClientID, m_aLanguage);
 
 	// do latency stuff
 	{
@@ -342,4 +346,14 @@ void CPlayer::TryRespawn()
 	m_pCharacter = new(m_ClientID) CCharacter(&GameServer()->m_World);
 	m_pCharacter->Spawn(this, SpawnPos);
 	GameServer()->CreatePlayerSpawn(SpawnPos);
+}
+
+const char* CPlayer::GetLanguage()
+{
+	return m_aLanguage;
+}
+
+void CPlayer::SetLanguage(const char* pLanguage)
+{
+	str_copy(m_aLanguage, pLanguage, sizeof(m_aLanguage));
 }

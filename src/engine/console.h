@@ -35,6 +35,7 @@ public:
 	{
 	protected:
 		unsigned m_NumArgs;
+		int m_ClientID;
 	public:
 		IResult() { m_NumArgs = 0; }
 		virtual ~IResult() {}
@@ -42,6 +43,9 @@ public:
 		virtual int GetInteger(unsigned Index) = 0;
 		virtual float GetFloat(unsigned Index) = 0;
 		virtual const char *GetString(unsigned Index) = 0;
+
+		void SetClientID(int ClientID) { m_ClientID = ClientID; }
+		int GetClientID() { return m_ClientID; }
 
 		int NumArguments() const { return m_NumArgs; }
 	};
@@ -80,10 +84,10 @@ public:
 	virtual void StoreCommands(bool Store) = 0;
 
 	virtual bool LineIsValid(const char *pStr) = 0;
-	virtual void ExecuteLine(const char *Sptr) = 0;
-	virtual void ExecuteLineFlag(const char *Sptr, int FlasgMask) = 0;
+	virtual void ExecuteLine(const char *Sptr, int ClientID) = 0;
+	virtual void ExecuteLineFlag(const char *Sptr, int ClientID, int FlasgMask) = 0;
 	virtual void ExecuteLineClient(const char *pStr, int ClientID, int Level, int FlagMask) = 0;
-	virtual void ExecuteLineStroked(int Stroke, const char *pStr) = 0;
+	virtual void ExecuteLineStroked(int Stroke, const char *pStr, int ClientID) = 0;
 	virtual void ExecuteFile(const char *pFilename) = 0;
 
 	virtual int RegisterPrintCallback(int OutputLevel, FPrintCallback pfnPrintCallback, void *pUserData) = 0;

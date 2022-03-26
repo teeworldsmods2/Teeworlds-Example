@@ -61,7 +61,7 @@ class CConsole : public IConsole
 	static void ConModCommandStatus(IConsole::IResult *pResult, void *pUser);
 
 	void ExecuteFileRecurse(const char *pFilename);
-	void ExecuteLineStroked(int Stroke, const char *pStr);
+	void ExecuteLineStroked(int Stroke, const char *pStr, int ClientID);
 
 	struct
 	{
@@ -171,8 +171,8 @@ public:
 	virtual void StoreCommands(bool Store);
 
 	virtual bool LineIsValid(const char *pStr);
-	virtual void ExecuteLine(const char *pStr);
-	virtual void ExecuteLineFlag(const char *pStr, int FlagMask);
+	virtual void ExecuteLine(const char *pStr, int ClientID);
+	virtual void ExecuteLineFlag(const char *pStr, int ClientID, int FlagMask);
 	virtual void ExecuteLineClient(const char *pStr, int ClientID, int Level, int FlagMask);
 	virtual void ExecuteFile(const char *pFilename);
 

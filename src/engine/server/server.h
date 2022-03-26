@@ -111,6 +111,7 @@ public:
 		int m_LastInputTick;
 		CSnapshotStorage m_Snapshots;
 
+
 		CInput m_LatestInput;
 		CInput m_aInputs[200]; // TODO: handle input better
 		int m_CurrentInput;
@@ -126,6 +127,7 @@ public:
 
 		void Reset();
 
+		char m_aLanguage[16];
 		NETADDR m_Addr;
 		bool m_CustClt;
 	};
@@ -243,6 +245,9 @@ public:
 	virtual void *SnapNewItem(int Type, int ID, int Size);
 	void SnapSetStaticsize(int ItemType, int Size);
 
+public:
+	virtual const char* GetClientLanguage(int ClientID);
+	virtual void SetClientLanguage(int ClientID, const char* pLanguage);
 	virtual int* GetIdMap(int ClientID);
 	virtual void SetCustClt(int ClientID);
 };
