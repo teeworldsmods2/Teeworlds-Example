@@ -57,12 +57,6 @@ public:
 		list = 0x0;
 	}
 
-	T& increment()
-	{
-		incsize();
-		set_size(size()+1);
-		return list[num_elements-1];
-	}
 
 	/*
 		Function: delete_all

@@ -126,10 +126,13 @@ public:
 		const IConsole::CCommandInfo *m_pRconCmdToSend;
 
 		void Reset();
+<<<<<<< HEAD
 
 		char m_aLanguage[16];
 		NETADDR m_Addr;
 		bool m_CustClt;
+=======
+>>>>>>> parent of fcd26d02... First commit of Multi-Language Localization
 	};
 
 	CClient m_aClients[MAX_CLIENTS];
@@ -244,12 +247,15 @@ public:
 	virtual void SnapFreeID(int ID);
 	virtual void *SnapNewItem(int Type, int ID, int Size);
 	void SnapSetStaticsize(int ItemType, int Size);
+<<<<<<< HEAD
 
 public:
 	virtual const char* GetClientLanguage(int ClientID);
 	virtual void SetClientLanguage(int ClientID, const char* pLanguage);
 	virtual int* GetIdMap(int ClientID);
 	virtual void SetCustClt(int ClientID);
+=======
+>>>>>>> parent of fcd26d02... First commit of Multi-Language Localization
 };
 
 #endif

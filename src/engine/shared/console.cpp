@@ -268,7 +268,7 @@ bool CConsole::LineIsValid(const char *pStr)
 	return true;
 }
 
-void CConsole::ExecuteLineStroked(int Stroke, const char *pStr, int ClientID)
+void CConsole::ExecuteLineStroked(int Stroke, const char *pStr)
 {
 	int OutputLevel = OUTPUT_LEVEL_STANDARD;
 	if(m_FlagMask&CFGFLAG_CHAT)
@@ -277,7 +277,6 @@ void CConsole::ExecuteLineStroked(int Stroke, const char *pStr, int ClientID)
 	while(pStr && *pStr)
 	{
 		CResult Result;
-		Result.SetClientID(ClientID);
 		const char *pEnd = pStr;
 		const char *pNextPart = 0;
 		int InString = 0;
@@ -388,17 +387,17 @@ CConsole::CCommand *CConsole::FindCommand(const char *pName, int FlagMask)
 	return 0x0;
 }
 
-void CConsole::ExecuteLine(const char *pStr, int ClientID)
+void CConsole::ExecuteLine(const char *pStr)
 {
-	CConsole::ExecuteLineStroked(1, pStr, ClientID); // press it
-	CConsole::ExecuteLineStroked(0, pStr, ClientID); // then release it
+	CConsole::ExecuteLineStroked(1, pStr); // press it
+	CConsole::ExecuteLineStroked(0, pStr); // then release it
 }
 
-void CConsole::ExecuteLineFlag(const char *pStr, int ClientID, int FlagMask)
+void CConsole::ExecuteLineFlag(const char *pStr, int FlagMask)
 {
 	int Temp = m_FlagMask;
 	m_FlagMask = FlagMask;
-	ExecuteLine(pStr, ClientID);
+	ExecuteLine(pStr);
 	m_FlagMask = Temp;
 }
 
@@ -410,7 +409,7 @@ void CConsole::ExecuteLineClient(const char *pStr, int ClientID, int Level, int 
 	m_FlagMask = FlagMask;
 	m_AccessLevel = Level;
 	m_ClientID = ClientID;
-	ExecuteLine(pStr, ClientID);
+	ExecuteLine(pStr);
 	m_ClientID = TmpClientID;
 	m_AccessLevel = TmpLevel;
 	m_FlagMask = TmpMask;
@@ -449,7 +448,7 @@ void CConsole::ExecuteFile(const char *pFilename)
 		lr.Init(File);
 
 		while((pLine = lr.Get()))
-			ExecuteLine(pLine, -1);
+			ExecuteLine(pLine);
 
 		io_close(File);
 	}
@@ -628,7 +627,7 @@ void CConsole::ConToggle(IConsole::IResult *pResult, void *pUser)
 			CIntVariableData *pData = static_cast<CIntVariableData *>(pUserData);
 			int Val = *(pData->m_pVariable)==pResult->GetInteger(1) ? pResult->GetInteger(2) : pResult->GetInteger(1);
 			str_format(aBuf, sizeof(aBuf), "%s %i", pResult->GetString(0), Val);
-			pConsole->ExecuteLine(aBuf, -1);
+			pConsole->ExecuteLine(aBuf);
 			aBuf[0] = 0;
 		}
 		else
@@ -661,7 +660,7 @@ void CConsole::ConToggleStroke(IConsole::IResult *pResult, void *pUser)
 		{
 			int Val = pResult->GetInteger(0)==0 ? pResult->GetInteger(3) : pResult->GetInteger(2);
 			str_format(aBuf, sizeof(aBuf), "%s %i", pResult->GetString(1), Val);
-			pConsole->ExecuteLine(aBuf, -1);
+			pConsole->ExecuteLine(aBuf);
 			aBuf[0] = 0;
 		}
 		else
@@ -739,7 +738,7 @@ void CConsole::ParseArguments(int NumArgs, const char **ppArguments)
 		else
 		{
 			// search arguments for overrides
-			ExecuteLine(ppArguments[i], -1);
+			ExecuteLine(ppArguments[i]);
 		}
 	}
 }

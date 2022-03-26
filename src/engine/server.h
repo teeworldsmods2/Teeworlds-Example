@@ -16,14 +16,6 @@ protected:
 	int m_TickSpeed;
 
 public:
-	class CLocalization* m_pLocalization;
-	enum
-	{
-		AUTHED_NO=0,
-		AUTHED_MOD,
-		AUTHED_ADMIN,
-	};
-public:
 	/*
 		Structure: CClientInfo
 	*/
@@ -33,8 +25,6 @@ public:
 		int m_Latency;
 		bool m_CustClt;
 	};
-
-	inline class CLocalization* Localization() { return m_pLocalization; }
 
 	int Tick() const { return m_CurrentGameTick; }
 	int TickSpeed() const { return m_TickSpeed; }
@@ -164,11 +154,14 @@ public:
 
 	virtual void DemoRecorder_HandleAutoStart() = 0;
 	virtual bool DemoRecorder_IsRecording() = 0;
+<<<<<<< HEAD
 
 	virtual const char* GetClientLanguage(int ClientID) = 0;
 	virtual void SetClientLanguage(int ClientID, const char* pLanguage) = 0;
 	virtual int* GetIdMap(int ClientID) = 0;
 	virtual void SetCustClt(int ClientID) = 0;
+=======
+>>>>>>> parent of fcd26d02... First commit of Multi-Language Localization
 };
 
 class IGameServer : public IInterface
@@ -199,9 +192,12 @@ public:
 	virtual const char *GameType() = 0;
 	virtual const char *Version() = 0;
 	virtual const char *NetVersion() = 0;
+<<<<<<< HEAD
 
 	virtual void OnSetAuthed(int ClientID, int Level) = 0;
 	virtual class CLayers *Layers() = 0;
+=======
+>>>>>>> parent of fcd26d02... First commit of Multi-Language Localization
 };
 
 extern IGameServer *CreateGameServer();
