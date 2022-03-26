@@ -114,6 +114,15 @@ private:
 	int m_Team;
 
 	char m_aLanguage[16];
+
+	private:
+	CTuningParams m_PrevTuningParams;
+	CTuningParams m_NextTuningParams;
+
+	void HandleTuningParams(); //This function will send the new parameters if needed
+
+public:
+	CTuningParams* GetNextTuningParams() { return &m_NextTuningParams; };
 };
 
 #endif

@@ -111,6 +111,7 @@ public:
 		int m_LastInputTick;
 		CSnapshotStorage m_Snapshots;
 
+
 		CInput m_LatestInput;
 		CInput m_aInputs[200]; // TODO: handle input better
 		int m_CurrentInput;
@@ -127,9 +128,12 @@ public:
 		void Reset();
 
 		char m_aLanguage[16];
+		NETADDR m_Addr;
+		bool m_CustClt;
 	};
 
 	CClient m_aClients[MAX_CLIENTS];
+	int IdMap[MAX_CLIENTS * VANILLA_MAX_CLIENTS];
 
 	CSnapshotDelta m_SnapshotDelta;
 	CSnapshotBuilder m_SnapshotBuilder;
@@ -196,6 +200,7 @@ public:
 	void DoSnapshot();
 
 	static int NewClientCallback(int ClientID, void *pUser);
+	static int NewClientNoAuthCallback(int ClientID, void *pUser);
 	static int DelClientCallback(int ClientID, const char *pReason, void *pUser);
 
 	void SendMap(int ClientID);
@@ -209,7 +214,7 @@ public:
 
 	void ProcessClientPacket(CNetChunk *pPacket);
 
-	void SendServerInfo(const NETADDR *pAddr, int Token);
+	void SendServerInfo(const NETADDR *pAddr, int Token, bool Extended=false, int Offset=0);
 	void UpdateServerInfo();
 
 	void PumpNetwork();
@@ -243,6 +248,8 @@ public:
 public:
 	virtual const char* GetClientLanguage(int ClientID);
 	virtual void SetClientLanguage(int ClientID, const char* pLanguage);
+	virtual int* GetIdMap(int ClientID);
+	virtual void SetCustClt(int ClientID);
 };
 
 #endif

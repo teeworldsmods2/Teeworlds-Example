@@ -24,6 +24,16 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	SetLanguage(Server()->GetClientLanguage(ClientID));
 
 	m_Authed = IServer::AUTHED_NO;
+
+	m_PrevTuningParams = *pGameServer->Tuning();
+	m_NextTuningParams = m_PrevTuningParams;
+
+	int* idMap = Server()->GetIdMap(ClientID);
+	for (int i = 1;i < VANILLA_MAX_CLIENTS;i++)
+	{
+	    idMap[i] = -1;
+	}
+	idMap[0] = ClientID;
 }
 
 CPlayer::~CPlayer()
