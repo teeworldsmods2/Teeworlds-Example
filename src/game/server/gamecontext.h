@@ -7,6 +7,8 @@
 #include <engine/console.h>
 #include <engine/shared/memheap.h>
 
+#include <teeuniverses/components/localization.h>
+
 #include <game/layers.h>
 #include <game/voting.h>
 
@@ -47,6 +49,7 @@ class CGameContext : public IGameServer
 
 	static void ConsoleOutputCallback_Chat(const char *pStr, void *pUser);
 
+	static void ConLanguage(IConsole::IResult *pResult, void *pUserData);
 	static void ConAbout(IConsole::IResult *pResult, void *pUserData);
 	static void ConTuneParam(IConsole::IResult *pResult, void *pUserData);
 	static void ConTuneReset(IConsole::IResult *pResult, void *pUserData);
@@ -143,11 +146,13 @@ public:
 	};
 
 	// network
-	void SendChatTarget(int To, const char *pText);
+	void SendChatTarget(int To, const char *pText, ...);
 	void SendChat(int ClientID, int Team, const char *pText);
 	void SendEmoticon(int ClientID, int Emoticon);
 	void SendWeaponPickup(int ClientID, int Weapon);
 	void SendBroadcast(const char *pText, int ClientID);
+	void SetClientLanguage(int ClientID, const char *pLanguage);
+
 
 
 	//
@@ -178,6 +183,8 @@ public:
 	virtual bool IsClientReady(int ClientID);
 	virtual bool IsClientPlayer(int ClientID);
 
+	virtual void OnSetAuthed(int ClientID,int Level);
+	
 	virtual const char *GameType();
 	virtual const char *Version();
 	virtual const char *NetVersion();

@@ -147,7 +147,7 @@ void CEcon::Update()
 			str_format(aFormatted, sizeof(aFormatted), "cid=%d cmd='%s'", ClientID, aBuf);
 			Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "server", aFormatted);
 			m_UserClientID = ClientID;
-			Console()->ExecuteLine(aBuf);
+			Console()->ExecuteLine(aBuf, ClientID);
 			m_UserClientID = -1;
 		}
 	}

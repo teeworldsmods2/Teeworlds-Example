@@ -125,6 +125,8 @@ public:
 		const IConsole::CCommandInfo *m_pRconCmdToSend;
 
 		void Reset();
+
+		char m_aLanguage[16];
 	};
 
 	CClient m_aClients[MAX_CLIENTS];
@@ -237,6 +239,10 @@ public:
 	virtual void SnapFreeID(int ID);
 	virtual void *SnapNewItem(int Type, int ID, int Size);
 	void SnapSetStaticsize(int ItemType, int Size);
+
+public:
+	virtual const char* GetClientLanguage(int ClientID);
+	virtual void SetClientLanguage(int ClientID, const char* pLanguage);
 };
 
 #endif
