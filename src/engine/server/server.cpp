@@ -30,6 +30,13 @@
 #include "register.h"
 #include "server.h"
 
+#include <teeuniverses/components/localization.h>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <algorithm>
+#include <cstring>
+
 #if defined(CONF_FAMILY_WINDOWS)
 	#define _WIN32_WINNT 0x0501
 	#define WIN32_LEAN_AND_MEAN
@@ -266,6 +273,17 @@ void CServer::CClient::Reset()
 	m_LastInputTick = -1;
 	m_SnapRate = CClient::SNAPRATE_INIT;
 	m_Score = 0;
+	str_copy(m_aLanguage, "en", sizeof(m_aLanguage));
+}
+
+const char* CServer::GetClientLanguage(int ClientID)
+{
+	return m_aClients[ClientID].m_aLanguage;
+}
+
+void CServer::SetClientLanguage(int ClientID, const char* pLanguage)
+{
+	str_copy(m_aClients[ClientID].m_aLanguage, pLanguage, sizeof(m_aClients[ClientID].m_aLanguage));
 }
 
 CServer::CServer() : m_DemoRecorder(&m_SnapshotDelta)
@@ -968,8 +986,18 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "server", aBuf);
 				m_RconClientID = ClientID;
 				m_RconAuthLevel = m_aClients[ClientID].m_Authed;
-				Console()->SetAccessLevel(m_aClients[ClientID].m_Authed == AUTHED_ADMIN ? IConsole::ACCESS_LEVEL_ADMIN : IConsole::ACCESS_LEVEL_MOD);
-				Console()->ExecuteLineFlag(pCmd, CFGFLAG_SERVER);
+				switch(m_aClients[ClientID].m_Authed)
+				{
+					case AUTHED_ADMIN:
+						Console()->SetAccessLevel(IConsole::ACCESS_LEVEL_ADMIN);
+						break;
+					case AUTHED_MOD:
+						Console()->SetAccessLevel(IConsole::ACCESS_LEVEL_MOD);
+						break;
+					default:
+						Console()->SetAccessLevel(IConsole::ACCESS_LEVEL_USER);
+				}	
+				Console()->ExecuteLineFlag(pCmd, ClientID, CFGFLAG_SERVER);
 				Console()->SetAccessLevel(IConsole::ACCESS_LEVEL_ADMIN);
 				m_RconClientID = IServer::RCON_CID_SERV;
 				m_RconAuthLevel = AUTHED_ADMIN;
@@ -995,6 +1023,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 					SendMsgEx(&Msg, MSGFLAG_VITAL, ClientID, true);
 
 					m_aClients[ClientID].m_Authed = AUTHED_ADMIN;
+					GameServer()->OnSetAuthed(ClientID, m_aClients[ClientID].m_Authed);
 					int SendRconCmds = Unpacker.GetInt();
 					if(Unpacker.Error() == 0 && SendRconCmds)
 						m_aClients[ClientID].m_pRconCmdToSend = Console()->FirstCommandInfo(IConsole::ACCESS_LEVEL_ADMIN, CFGFLAG_SERVER);
@@ -1390,16 +1419,12 @@ int CServer::Run()
 					static NETSTATS prev_stats;
 					NETSTATS stats;
 					netserver_stats(net, &stats);
-
 					perf_next();
-
 					if(config.dbg_pref)
 						perf_dump(&rootscope);
-
 					dbg_msg("server", "send=%8d recv=%8d",
 						(stats.send_bytes - prev_stats.send_bytes)/reportinterval,
 						(stats.recv_bytes - prev_stats.recv_bytes)/reportinterval);
-
 					prev_stats = stats;
 					*/
 				}
@@ -1676,6 +1701,14 @@ int main(int argc, const char **argv) // ignore_convention
 	IStorage *pStorage = CreateStorage("Teeworlds", IStorage::STORAGETYPE_SERVER, argc, argv); // ignore_convention
 	IConfig *pConfig = CreateConfig();
 
+	pServer->m_pLocalization = new CLocalization(pStorage);
+	pServer->m_pLocalization->InitConfig(0, NULL);
+	if(!pServer->m_pLocalization->Init())
+	{
+		dbg_msg("localization", "could not initialize localization");
+		return -1;
+	}
+
 	pServer->InitRegister(&pServer->m_NetServer, pEngineMasterServer, pConsole);
 
 	{
@@ -1721,6 +1754,8 @@ int main(int argc, const char **argv) // ignore_convention
 	pServer->Run();
 
 	// free
+	delete pServer->m_pLocalization;
+	
 	delete pServer;
 	delete pKernel;
 	delete pEngineMap;
@@ -1731,4 +1766,3 @@ int main(int argc, const char **argv) // ignore_convention
 	delete pConfig;
 	return 0;
 }
-

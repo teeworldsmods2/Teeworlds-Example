@@ -1,3 +1,4 @@
+
 Import("configure.lua")
 
 --- Setup Config -------
@@ -45,7 +46,6 @@ function DuplicateDirectoryStructure(orgpath, srcpath, dstpath)
 		DuplicateDirectoryStructure(orgpath, v, dstpath)
 	end
 end
-
 DuplicateDirectoryStructure("src", "src", "objs")
 ]]
 
@@ -101,9 +101,36 @@ AddDependency(server_content_source, server_content_header)
 
 nethash = CHash("src/game/generated/nethash.cpp", "src/engine/shared/protocol.h", "src/game/generated/protocol.h", "src/game/tuning.h", "src/game/gamecore.cpp", network_header)
 
+icu_depends = {}
 server_link_other = {}
 
 if family == "windows" then
+	if platform == "win32" then
+		-- Add ICU because its a HAVE to
+		if config.compiler.driver == "cl" then
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/vc/lib32/icudt53.dll"))
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/vc/lib32/icuin53.dll"))
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/vc/lib32/icuuc53.dll"))
+		elseif config.compiler.driver == "gcc" then
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/gcc/lib32/icudt53.dll"))
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/gcc/lib32/icuin53.dll"))
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/gcc/lib32/icuuc53.dll"))
+		end
+	else
+		-- Add ICU because its a HAVE to
+		if config.compiler.driver == "cl" then
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/vc/lib64/icudt53.dll"))
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/vc/lib64/icuin53.dll"))
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/vc/lib64/icuuc53.dll"))
+		elseif config.compiler.driver == "gcc" then
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/gcc/lib64/icudt53.dll"))
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/gcc/lib64/icuin53.dll"))
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/gcc/lib64/icuuc53.dll"))
+		end
+	end
+	table.insert(server_sql_depends, CopyToDirectory(".", "other/mysql/vc2005libs/mysqlcppconn.dll"))
+	table.insert(server_sql_depends, CopyToDirectory(".", "other/mysql/vc2005libs/libmysql.dll"))
+
 	if config.compiler.driver == "cl" then
 		server_link_other = {ResCompile("other/icons/teeworlds_srv_cl.rc")}
 	elseif config.compiler.driver == "gcc" then
@@ -147,10 +174,22 @@ function build(settings)
 
 	if family == "unix" then
 		if platform == "macosx" then
+			settings.cc.flags_cxx:Add("-stdlib=libc++")
+			settings.cc.includes:Add("/usr/local/opt/icu4c/include")
+			settings.link.libs:Add("icui18n")
+			settings.link.libs:Add("icuuc")
+			settings.link.libs:Add("c++")
+			settings.link.libpath:Add("/usr/local/opt/icu4c/lib")
 			settings.link.frameworks:Add("Carbon")
 			settings.link.frameworks:Add("AppKit")
 		else
 			settings.link.libs:Add("pthread")
+			-- add ICU for linux
+			if ExecuteSilent("pkg-config icu-uc icu-i18n") == 0 then
+			end
+
+			settings.cc.flags:Add("`pkg-config --cflags icu-uc icu-i18n`")
+			settings.link.flags:Add("`pkg-config --libs icu-uc icu-i18n`")
 		end
 		
 		if platform == "solaris" then
@@ -163,6 +202,10 @@ function build(settings)
 		settings.link.libs:Add("ws2_32")
 		settings.link.libs:Add("ole32")
 		settings.link.libs:Add("shell32")
+		settings.link.libs:Add("advapi32")
+
+		-- add ICU also here
+		settings.cc.includes:Add("other\\icu\\include")
 	end
 
 	-- compile zlib if needed
@@ -178,12 +221,8 @@ function build(settings)
 	end
 
 	-- build the small libraries
-<<<<<<< HEAD
 	json = Compile(settings, "src/engine/external/json-parser/json.c")
-	md5 = Compile(settings, Collect("src/engine/external/md5/*.c"))
-=======
->>>>>>> parent of fcd26d02... First commit of Multi-Language Localization
-
+	
 	-- build game components
 	engine_settings = settings:Copy()
 	server_settings = engine_settings:Copy()
@@ -193,10 +232,33 @@ function build(settings)
 		if platform == "macosx" then
 			launcher_settings.link.frameworks:Add("Cocoa")
 		end
+
+	elseif family == "windows" then
+		-- Add ICU because its a HAVE to
+		if platform == "win32" then
+			if config.compiler.driver == "cl" then
+				server_settings.link.libpath:Add("other/icu/vc/lib32")
+			elseif config.compiler.driver == "gcc" then
+				server_settings.link.libpath:Add("other/icu/gcc/lib32")
+			end
+			server_settings.link.libs:Add("icudt")
+			server_settings.link.libs:Add("icuin")
+			server_settings.link.libs:Add("icuuc")
+		else
+			if config.compiler.driver == "cl" then
+				server_settings.link.libpath:Add("other/icu/vc/lib64")
+			elseif config.compiler.driver == "gcc" then
+				server_settings.link.libpath:Add("other/icu/gcc/lib64")
+			end
+			server_settings.link.libs:Add("icudt")
+			server_settings.link.libs:Add("icuin")
+			server_settings.link.libs:Add("icuuc")
+		end
 	end
 	
 	engine = Compile(engine_settings, Collect("src/engine/shared/*.cpp", "src/base/*.c"))
 	server = Compile(server_settings, Collect("src/engine/server/*.cpp"))
+	teeuniverses = Compile(server_settings, Collect("src/teeuniverses/*.cpp", "src/teeuniverses/components/*.cpp", "src/teeuniverses/system/*.cpp"))
 
 	game_shared = Compile(settings, Collect("src/game/*.cpp"), nethash, network_source)
 	game_server = Compile(settings, CollectRecursive("src/game/server/*.cpp"), server_content_source)
@@ -208,11 +270,7 @@ function build(settings)
 
 	-- build server
 	server_exe = Link(server_settings, "teeworlds_srv", engine, server,
-<<<<<<< HEAD
-		game_shared, game_server, zlib, server_link_other, teeuniverses, json, md5)
-=======
-		game_shared, game_server, zlib, server_link_other)
->>>>>>> parent of fcd26d02... First commit of Multi-Language Localization
+		game_shared, game_server, zlib, server_link_other, teeuniverses, json)
 
 	serverlaunch = {}
 	if platform == "macosx" then
@@ -220,7 +278,7 @@ function build(settings)
 	end
 
 	-- make targets
-	s = PseudoTarget("server".."_"..settings.config_name, server_exe, serverlaunch)
+	s = PseudoTarget("server".."_"..settings.config_name, server_exe, serverlaunch, icu_depends)
 
 	all = PseudoTarget(settings.config_name, c, s, v, m, t)
 	return all

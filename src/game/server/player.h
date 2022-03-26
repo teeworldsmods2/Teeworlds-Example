@@ -35,6 +35,9 @@ public:
 	void KillCharacter(int Weapon = WEAPON_GAME);
 	CCharacter *GetCharacter();
 
+	const char* GetLanguage();
+	void SetLanguage(const char* pLanguage);
+
 	//---------------------------------------------------------
 	// this is used for snapping so we know how we can clip the view for the player
 	vec2 m_ViewPos;
@@ -96,6 +99,8 @@ public:
 		int m_Max;
 	} m_Latency;
 
+	int m_Authed;
+
 private:
 	CCharacter *m_pCharacter;
 	CGameContext *m_pGameServer;
@@ -107,20 +112,8 @@ private:
 	bool m_Spawning;
 	int m_ClientID;
 	int m_Team;
-<<<<<<< HEAD
 
 	char m_aLanguage[16];
-
-	private:
-	CTuningParams m_PrevTuningParams;
-	CTuningParams m_NextTuningParams;
-
-	void HandleTuningParams(); //This function will send the new parameters if needed
-
-public:
-	CTuningParams* GetNextTuningParams() { return &m_NextTuningParams; };
-=======
->>>>>>> parent of fcd26d02... First commit of Multi-Language Localization
 };
 
 #endif

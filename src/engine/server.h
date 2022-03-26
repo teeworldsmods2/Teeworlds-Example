@@ -5,9 +5,6 @@
 #include "kernel.h"
 #include "message.h"
 
-#include <game/generated/protocol.h>
-#include <engine/shared/protocol.h>
-
 class IServer : public IInterface
 {
 	MACRO_INTERFACE("server", 0)
@@ -16,6 +13,14 @@ protected:
 	int m_TickSpeed;
 
 public:
+	class CLocalization* m_pLocalization;
+	enum
+	{
+		AUTHED_NO=0,
+		AUTHED_MOD,
+		AUTHED_ADMIN,
+	};
+public:
 	/*
 		Structure: CClientInfo
 	*/
@@ -23,8 +28,9 @@ public:
 	{
 		const char *m_pName;
 		int m_Latency;
-		bool m_CustClt;
 	};
+
+	inline class CLocalization* Localization() { return m_pLocalization; }
 
 	int Tick() const { return m_CurrentGameTick; }
 	int TickSpeed() const { return m_TickSpeed; }
@@ -42,94 +48,10 @@ public:
 	template<class T>
 	int SendPackMsg(T *pMsg, int Flags, int ClientID)
 	{
-		int result = 0;
-		T tmp;
-		if (ClientID == -1)
-		{
-			for(int i = 0; i < MAX_CLIENTS; i++)
-				if(ClientIngame(i))
-				{
-					mem_copy(&tmp, pMsg, sizeof(T));
-					result = SendPackMsgTranslate(&tmp, Flags, i);
-				}
-		} else {
-			mem_copy(&tmp, pMsg, sizeof(T));
-			result = SendPackMsgTranslate(&tmp, Flags, ClientID);
-		}
-		return result;
-	}
-
-	template<class T>
-	int SendPackMsgTranslate(T *pMsg, int Flags, int ClientID)
-	{
-		return SendPackMsgOne(pMsg, Flags, ClientID);
-	}
-
-	int SendPackMsgTranslate(CNetMsg_Sv_Emoticon *pMsg, int Flags, int ClientID)
-	{
-		return Translate(pMsg->m_ClientID, ClientID) && SendPackMsgOne(pMsg, Flags, ClientID);
-	}
-
-	char msgbuf[1000];
-
-	int SendPackMsgTranslate(CNetMsg_Sv_Chat *pMsg, int Flags, int ClientID)
-	{
-		if (pMsg->m_ClientID >= 0 && !Translate(pMsg->m_ClientID, ClientID))
-		{
-			str_format(msgbuf, sizeof(msgbuf), "%s: %s", ClientName(pMsg->m_ClientID), pMsg->m_pMessage);
-			pMsg->m_pMessage = msgbuf;
-			pMsg->m_ClientID = VANILLA_MAX_CLIENTS - 1;
-		}
-		return SendPackMsgOne(pMsg, Flags, ClientID);
-	}
-
-	int SendPackMsgTranslate(CNetMsg_Sv_KillMsg *pMsg, int Flags, int ClientID)
-	{
-		if (!Translate(pMsg->m_Victim, ClientID)) return 0;
-		if (!Translate(pMsg->m_Killer, ClientID)) pMsg->m_Killer = pMsg->m_Victim;
-		return SendPackMsgOne(pMsg, Flags, ClientID);
-	}
-
-	template<class T>
-	int SendPackMsgOne(T *pMsg, int Flags, int ClientID)
-	{
-        CMsgPacker Packer(pMsg->MsgID());
+		CMsgPacker Packer(pMsg->MsgID());
 		if(pMsg->Pack(&Packer))
 			return -1;
 		return SendMsg(&Packer, Flags, ClientID);
-	}
-
-	bool Translate(int& target, int client)
-	{
-		CClientInfo info;
-		GetClientInfo(client, &info);
-		if (info.m_CustClt)
-			return true;
-		int* map = GetIdMap(client);
-		bool found = false;
-		for (int i = 0; i < VANILLA_MAX_CLIENTS; i++)
-		{
-			if (target == map[i])
-			{
-				target = i;
-				found = true;
-				break;
-			}
-		}
-		return found;
-	}
-
-	bool ReverseTranslate(int& target, int client)
-	{
-		CClientInfo info;
-		GetClientInfo(client, &info);
-		if (info.m_CustClt)
-			return true;
-		int* map = GetIdMap(client);
-		if (map[target] == -1)
-			return false;
-		target = map[target];
-		return true;
 	}
 
 	virtual void SetClientName(int ClientID, char const *pName) = 0;
@@ -154,14 +76,9 @@ public:
 
 	virtual void DemoRecorder_HandleAutoStart() = 0;
 	virtual bool DemoRecorder_IsRecording() = 0;
-<<<<<<< HEAD
 
 	virtual const char* GetClientLanguage(int ClientID) = 0;
 	virtual void SetClientLanguage(int ClientID, const char* pLanguage) = 0;
-	virtual int* GetIdMap(int ClientID) = 0;
-	virtual void SetCustClt(int ClientID) = 0;
-=======
->>>>>>> parent of fcd26d02... First commit of Multi-Language Localization
 };
 
 class IGameServer : public IInterface
@@ -192,12 +109,8 @@ public:
 	virtual const char *GameType() = 0;
 	virtual const char *Version() = 0;
 	virtual const char *NetVersion() = 0;
-<<<<<<< HEAD
 
 	virtual void OnSetAuthed(int ClientID, int Level) = 0;
-	virtual class CLayers *Layers() = 0;
-=======
->>>>>>> parent of fcd26d02... First commit of Multi-Language Localization
 };
 
 extern IGameServer *CreateGameServer();
