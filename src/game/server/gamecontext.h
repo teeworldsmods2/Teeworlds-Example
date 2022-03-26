@@ -87,7 +87,8 @@ class CGameContext : public IGameServer
 
 	int m_ConsoleOutputHandle_ChatPrint;
 	int m_ConsoleOutput_Target;
-	
+
+public:
 	int m_ZoneHandle_TeeWorlds;
 
 public:

@@ -271,7 +271,7 @@ function build(settings)
 
 	-- build server
 	server_exe = Link(server_settings, "teeworlds_srv", engine, server,
-		game_shared, game_server, zlib, server_link_other, teeuniverses, json, md5)
+		game_shared, game_server, zlib, md5, server_link_other, json, teeuniverses)
 
 	serverlaunch = {}
 	if platform == "macosx" then
