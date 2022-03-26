@@ -178,6 +178,7 @@ function build(settings)
 	end
 
 	-- build the small libraries
+	json = Compile(settings, "src/engine/external/json-parser/json.c")
 	md5 = Compile(settings, Collect("src/engine/external/md5/*.c"))
 
 	-- build game components
@@ -204,7 +205,7 @@ function build(settings)
 
 	-- build server
 	server_exe = Link(server_settings, "teeworlds_srv", engine, server,
-		game_shared, game_server, zlib, md5, server_link_other)
+		game_shared, game_server, zlib, md5, server_link_other, json, teeuniverses)
 
 	serverlaunch = {}
 	if platform == "macosx" then
