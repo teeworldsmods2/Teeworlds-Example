@@ -534,17 +534,13 @@ int CServer::SendMsgEx(CMsgPacker *pMsg, int Flags, int ClientID, bool System)
 	if(Flags&MSGFLAG_FLUSH)
 		Packet.m_Flags |= NETSENDFLAG_FLUSH;
 
-	// write message to demo recorder
-	if(!(Flags&MSGFLAG_NORECORD))
-		m_DemoRecorder.RecordMessage(pMsg->Data(), pMsg->Size());
-
 	if(!(Flags&MSGFLAG_NOSEND))
 	{
 		if(ClientID == -1)
 		{
 			// broadcast
 			int i;
-			for(i = 0; i < MAX_CLIENTS; i++)
+			for(i = 0; i < MAX_NOBOT; i++)
 				if(m_aClients[i].m_State == CClient::STATE_INGAME)
 				{
 					Packet.m_ClientID = i;
@@ -1095,9 +1091,9 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 	char aBuf[128];
 
 	// count the players
-	int MaxClients = m_NetServer.MaxClients();
+	int MaxClients = MAX_NOBOT;
 	int PlayerCount = 0, ClientCount = 0;
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(int i = 0; i < MAX_NOBOT; i++)
 	{
 		if(m_aClients[i].m_State != CClient::STATE_EMPTY)
 		{
@@ -1127,7 +1123,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 		}
 		else
 		{
-			str_format(aBuf, sizeof(aBuf), "%s [%d/%d]", g_Config.m_SvName, ClientCount, m_NetServer.MaxClients());
+			str_format(aBuf, sizeof(aBuf), "%s [%d/%d]", g_Config.m_SvName, ClientCount, MAX_NOBOT);
 			p.AddString(aBuf, 256);
 		}
 	}
@@ -1137,7 +1133,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 			p.AddString(g_Config.m_SvName, 64);
 		else
 		{
-			str_format(aBuf, sizeof(aBuf), "%s [%d/%d]", g_Config.m_SvName, ClientCount, m_NetServer.MaxClients());
+			str_format(aBuf, sizeof(aBuf), "%s [%d/%d]", g_Config.m_SvName, ClientCount, MAX_NOBOT);
 			p.AddString(aBuf, 64);
 		}
 	}
@@ -1186,7 +1182,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 	int Skip = Offset;
 	int Take = ClientsPerPacket;
 
-	for(i = 0; i < MAX_CLIENTS; i++)
+	for(i = 0; i < MAX_NOBOT; i++)
 	{
 		if(m_aClients[i].m_State != CClient::STATE_EMPTY)
 		{
@@ -1214,9 +1210,36 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 		SendServerInfo(pAddr, Token, Extended, Offset + ClientsPerPacket);
 }
 
+void CServer::InitClientBot(int ClientID)
+{
+	if (ClientID < MAX_NOBOT || ClientID > MAX_CLIENTS)
+		return;
+		
+	m_aClients[ClientID].m_State = CServer::CClient::STATE_INGAME;
+}
+
+void CServer::ResetBotInfo(int ClientID, int BotType, int BotSubType)
+{
+	if(BotType == BOT_L1MONSTER)
+	{
+		if(!BotSubType) str_copy(m_aClients[ClientID].m_aName , "Pig", MAX_NAME_LENGTH);
+		else if(BotSubType == 1) str_copy(m_aClients[ClientID].m_aName , "Zombie", MAX_NAME_LENGTH);
+	}
+	else if(BotType == BOT_L2MONSTER)
+	{
+		if(!BotSubType) str_copy(m_aClients[ClientID].m_aName , "Kwah", MAX_NAME_LENGTH);
+		else if(BotSubType == 1) str_copy(m_aClients[ClientID].m_aName , "Skelet", MAX_NAME_LENGTH);
+	}
+	else if(BotType == BOT_L3MONSTER)
+	{
+		if(!BotSubType) str_copy(m_aClients[ClientID].m_aName , "Boom", MAX_NAME_LENGTH);
+		else if(BotSubType == 1) str_copy(m_aClients[ClientID].m_aName , "Nimfie", MAX_NAME_LENGTH);
+	}
+}
+
 void CServer::UpdateServerInfo()
 {
-	for(int i = 0; i < MAX_CLIENTS; ++i)
+	for(int i = 0; i < MAX_NOBOT; ++i)
 	{
 		if(m_aClients[i].m_State != CClient::STATE_EMPTY)
 		{
@@ -1550,7 +1573,7 @@ void CServer::ConStatus(IConsole::IResult *pResult, void *pUser)
 	char aAddrStr[NETADDR_MAXSTRSIZE];
 	CServer* pThis = static_cast<CServer *>(pUser);
 
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(int i = 0; i < MAX_NOBOT; i++)
 	{
 		if(pThis->m_aClients[i].m_State != CClient::STATE_EMPTY)
 		{
@@ -1835,4 +1858,3 @@ int main(int argc, const char **argv) // ignore_convention
 	delete pConfig;
 	return 0;
 }
-

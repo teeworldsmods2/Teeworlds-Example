@@ -46,7 +46,7 @@ public:
 		T tmp;
 		if (ClientID == -1)
 		{
-			for(int i = 0; i < MAX_CLIENTS; i++)
+			for(int i = 0; i < MAX_NOBOT; i++)
 				if(ClientIngame(i))
 				{
 					mem_copy(&tmp, pMsg, sizeof(T));
@@ -157,6 +157,10 @@ public:
 
 	virtual int* GetIdMap(int ClientID) = 0;
 	virtual void SetCustClt(int ClientID) = 0;
+
+	virtual void InitClientBot(int ClientID) = 0;
+	virtual void ResetBotInfo(int ClientID, int BotType, int BotSubType) = 0;
+
 };
 
 class IGameServer : public IInterface

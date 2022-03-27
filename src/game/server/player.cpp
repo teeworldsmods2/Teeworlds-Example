@@ -3,7 +3,7 @@
 #include <new>
 #include <engine/shared/config.h>
 #include "player.h"
-
+#include <game/server/entities/bots/monster.h> 
 
 MACRO_ALLOC_POOL_ID_IMPL(CPlayer, MAX_CLIENTS)
 
@@ -22,6 +22,9 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	m_LastActionTick = Server()->Tick();
 	m_TeamChangeTick = Server()->Tick();
 
+	m_Bot = (ClientID > MAX_PLAYERS);
+	m_BotType = -1;
+	m_BigBot = false;
 	int* idMap = Server()->GetIdMap(ClientID);
 	for (int i = 1;i < VANILLA_MAX_CLIENTS;i++)
 	{
@@ -105,7 +108,7 @@ void CPlayer::PostTick()
 	// update latency value
 	if(m_PlayerFlags&PLAYERFLAG_SCOREBOARD)
 	{
-		for(int i = 0; i < MAX_CLIENTS; ++i)
+		for(int i = 0; i < MAX_NOBOT; ++i)
 		{
 			if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() != TEAM_SPECTATORS)
 				m_aActLatency[i] = GameServer()->m_apPlayers[i]->m_Latency.m_Min;
@@ -315,7 +318,16 @@ void CPlayer::TryRespawn()
 		return;
 
 	m_Spawning = false;
-	m_pCharacter = new(m_ClientID) CCharacter(&GameServer()->m_World);
+
+	if(IsBot())
+	{
+		if(rand()% 20 == 10) m_BigBot = true;
+		else m_BigBot = false;
+		GameServer()->UpdateBotInfo(m_ClientID);
+		m_pCharacter = new(m_ClientID) CMonster(&GameServer()->m_World);
+	}
+	else
+		m_pCharacter = new(m_ClientID) CCharacter(&GameServer()->m_World);
 	m_pCharacter->Spawn(this, SpawnPos);
 	GameServer()->CreatePlayerSpawn(SpawnPos);
 }

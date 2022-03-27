@@ -135,6 +135,9 @@ public:
 	void CreateSound(vec2 Pos, int Sound, int64_t Mask=-1LL);
 	void CreateSoundGlobal(int Sound, int Target=-1);
 
+	void CreateBot(int ClientID, int BotType, int BotSubType = 0);
+	void UpdateBotInfo(int ClientID);
+
 
 	enum
 	{

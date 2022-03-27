@@ -816,7 +816,7 @@ void CCharacter::Snap(int SnappingClient)
 	// set emote
 	if (m_EmoteStop < Server()->Tick())
 	{
-		m_EmoteType = EMOTE_NORMAL;
+		m_EmoteType = EmoteNormal;
 		m_EmoteStop = -1;
 	}
 

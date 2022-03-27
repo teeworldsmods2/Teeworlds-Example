@@ -244,6 +244,9 @@ public:
 
 	virtual int* GetIdMap(int ClientID);
 	virtual void SetCustClt(int ClientID);
+
+	virtual void InitClientBot(int ClientID);
+	virtual void ResetBotInfo(int ClientID, int BotType, int BotSubType);
 };
 
 #endif

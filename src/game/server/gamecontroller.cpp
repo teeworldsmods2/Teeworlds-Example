@@ -222,6 +222,10 @@ void IGameController::StartRound()
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "start round type='%s' teamplay='%d'", m_pGameType, m_GameFlags&GAMEFLAG_TEAMS);
 	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
+	
+	int CurID = 0;
+	for (int o=0; o<12; o++,CurID++)
+		GameServer()->CreateBot(CurID, BOT_L1MONSTER, 0);
 }
 
 void IGameController::ChangeMap(const char *pToMap)
@@ -322,6 +326,25 @@ void IGameController::PostReset()
 
 void IGameController::OnPlayerInfoChange(class CPlayer *pP)
 {
+	if(pP->GetBotType() == BOT_L1MONSTER && pP->GetBotSubType() == 1)
+	{
+		pP->m_TeeInfos.m_UseCustomColor = 1;
+		pP->m_TeeInfos.m_ColorBody = 65387;
+		pP->m_TeeInfos.m_ColorFeet = 65387;		
+	} 
+	if(pP->GetBotType() == BOT_L2MONSTER && pP->GetBotSubType() == 1)
+	{
+		pP->m_TeeInfos.m_UseCustomColor = 1;
+		pP->m_TeeInfos.m_ColorBody = 100;
+		pP->m_TeeInfos.m_ColorFeet = 100;		
+	} 
+	if(pP->GetBotType() == BOT_L3MONSTER && pP->GetBotSubType() == 1)
+	{
+		pP->m_TeeInfos.m_UseCustomColor = 1;
+		pP->m_TeeInfos.m_ColorBody = 15387000;
+		pP->m_TeeInfos.m_ColorFeet = 15387000;		
+	} 
+
 	const int aTeamColors[2] = {65387, 10223467};
 	if(IsTeamplay())
 	{
@@ -523,7 +546,7 @@ void IGameController::Tick()
 	// check for inactive players
 	if(g_Config.m_SvInactiveKickTime > 0)
 	{
-		for(int i = 0; i < MAX_CLIENTS; ++i)
+		for(int i = 0; i < MAX_NOBOT; ++i)
 		{
 		#ifdef CONF_DEBUG
 			if(g_Config.m_DbgDummies)
@@ -548,7 +571,7 @@ void IGameController::Tick()
 						{
 							// move player to spectator if the reserved slots aren't filled yet, kick him otherwise
 							int Spectators = 0;
-							for(int j = 0; j < MAX_CLIENTS; ++j)
+							for(int j = 0; j < MAX_NOBOT; ++j)
 								if(GameServer()->m_apPlayers[j] && GameServer()->m_apPlayers[j]->GetTeam() == TEAM_SPECTATORS)
 									++Spectators;
 							if(Spectators >= g_Config.m_SvSpectatorSlots)
@@ -587,15 +610,18 @@ void IGameController::Snap(int SnappingClient)
 	pGameInfoObj->m_GameStateFlags = 0;
 	if(m_GameOverTick != -1)
 		pGameInfoObj->m_GameStateFlags |= GAMESTATEFLAG_GAMEOVER;
+		
 	if(m_SuddenDeath)
 		pGameInfoObj->m_GameStateFlags |= GAMESTATEFLAG_SUDDENDEATH;
+		
 	if(GameServer()->m_World.m_Paused)
 		pGameInfoObj->m_GameStateFlags |= GAMESTATEFLAG_PAUSED;
+		
 	pGameInfoObj->m_RoundStartTick = m_RoundStartTick;
-	pGameInfoObj->m_WarmupTimer = GameServer()->m_World.m_Paused ? m_UnpauseTimer : m_Warmup;
+	pGameInfoObj->m_WarmupTimer = 0;
 
 	pGameInfoObj->m_ScoreLimit = g_Config.m_SvScorelimit;
-	pGameInfoObj->m_TimeLimit = g_Config.m_SvTimelimit;
+	pGameInfoObj->m_TimeLimit = 0;
 
 	pGameInfoObj->m_RoundNum = (str_length(g_Config.m_SvMaprotation) && g_Config.m_SvRoundsPerMap) ? g_Config.m_SvRoundsPerMap : 0;
 	pGameInfoObj->m_RoundCurrent = m_RoundCount+1;

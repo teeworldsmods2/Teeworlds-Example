@@ -1521,6 +1521,13 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 
 	//game.world.insert_entity(game.Controller);
 
+	int CurID = 0;
+	for (int o=0; o<12; o++,CurID++)
+	{
+		CreateBot(CurID, BOT_L1MONSTER);
+		dbg_msg("test", "done");
+	}
+
 #ifdef CONF_DEBUG
 	if(g_Config.m_DbgDummies)
 	{
@@ -1576,6 +1583,47 @@ bool CGameContext::IsClientReady(int ClientID)
 bool CGameContext::IsClientPlayer(int ClientID)
 {
 	return m_apPlayers[ClientID] && m_apPlayers[ClientID]->GetTeam() == TEAM_SPECTATORS ? false : true;
+}
+
+void CGameContext::UpdateBotInfo(int ClientID)
+{
+	char NameSkin[32];
+	const int BotType = m_apPlayers[ClientID]->GetBotType();
+	const int BotSubType = m_apPlayers[ClientID]->GetBotSubType();
+
+	if(BotType == BOT_L1MONSTER)
+	{
+		if(!BotSubType)	str_copy(NameSkin, "pinky", sizeof(NameSkin));
+		else if(BotSubType == 1)	str_copy(NameSkin, "twintri", sizeof(NameSkin));
+	}
+	else if(BotType == BOT_L2MONSTER)
+	{
+		if(!BotSubType)	str_copy(NameSkin, "cammostripes", sizeof(NameSkin));
+		else if(BotSubType == 1)	str_copy(NameSkin, "cammostripes", sizeof(NameSkin));
+	}
+	else if(BotType == BOT_L3MONSTER)
+	{
+		if(!BotSubType) str_copy(NameSkin, "twintri", sizeof(NameSkin));
+		else if(BotSubType == 1) str_copy(NameSkin, "coala", sizeof(NameSkin));
+	}
+	
+    Server()->ResetBotInfo(ClientID, BotType, BotSubType);
+    str_copy(m_apPlayers[ClientID]->m_TeeInfos.m_SkinName, NameSkin, sizeof(m_apPlayers[ClientID]->m_TeeInfos.m_SkinName));
+    m_apPlayers[ClientID]->m_TeeInfos.m_UseCustomColor = false;
+    m_pController->OnPlayerInfoChange(m_apPlayers[ClientID]);
+}
+
+void CGameContext::CreateBot(int ClientID, int BotType, int BotSubType)
+{
+    int BotClientID = MAX_PLAYERS+ClientID+1;
+    if (m_apPlayers[BotClientID] || BotClientID > MAX_CLIENTS)
+		return;
+	dbg_msg("test", "sa");
+	m_apPlayers[BotClientID] = new(BotClientID) CPlayer(this, BotClientID, TEAM_RED);
+	m_apPlayers[BotClientID]->SetBotType(BotType);
+	m_apPlayers[BotClientID]->SetBotSubType(BotSubType);
+	
+	Server()->InitClientBot(BotClientID);
 }
 
 const char *CGameContext::GameType() { return m_pController && m_pController->m_pGameType ? m_pController->m_pGameType : ""; }

@@ -98,6 +98,14 @@ public:
 		int m_Max;
 	} m_Latency;
 
+	bool IsBot() const { return m_Bot; }
+	int GetBotType() const { return m_BotType; }
+	int GetBotSubType() const { return m_BotSubType; }
+	void SetBotType(int BotType) { m_BotType = BotType; }
+	void SetBotSubType(int BotSubType) { m_BotSubType = BotSubType; }
+
+	bool m_BigBot;
+
 private:
 	CCharacter *m_pCharacter;
 	CGameContext *m_pGameServer;
@@ -109,6 +117,10 @@ private:
 	bool m_Spawning;
 	int m_ClientID;
 	int m_Team;
+
+	bool m_Bot;
+	int m_BotType;
+	int m_BotSubType;
 };
 
 #endif
