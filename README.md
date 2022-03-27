@@ -21,6 +21,13 @@ Originally written by Magnus Auvinen.
 
 tw06server branch
 ---------------------------
+Author: Kurosio
+
+Features:
+- Server side bot AI (Kurosio)
+
+tw06server branch
+---------------------------
 Author: necropotame, heinrich5991
 
 Features:
