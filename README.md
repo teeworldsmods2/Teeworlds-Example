@@ -21,10 +21,10 @@ Originally written by Magnus Auvinen.
 
 tw06server branch
 ---------------------------
-Author: Kurosio
+Author: Alexandre Díaz, Tardo
 
 Features:
-- Server side bot AI (Kurosio)
+- Server side bot AI (Alexandre Díaz)
 
 tw06server branch
 ---------------------------
