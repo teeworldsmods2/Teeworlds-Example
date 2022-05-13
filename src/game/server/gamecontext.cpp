@@ -10,6 +10,7 @@
 #include <game/collision.h>
 #include <game/gamecore.h>
 #include "gamemodes/mod.h"
+#include <string.h>
 
 #include <teeuniverses/components/localization.h>
 
@@ -71,7 +72,8 @@ void CGameContext::Clear()
 	CVoteOptionServer *pVoteOptionLast = m_pVoteOptionLast;
 	int NumVoteOptions = m_NumVoteOptions;
 	CTuningParams Tuning = m_Tuning;
-
+	
+	
 	m_Resetting = true;
 	this->~CGameContext();
 	mem_zero(this, sizeof(*this));
@@ -92,7 +94,7 @@ class CCharacter *CGameContext::GetPlayerChar(int ClientID)
 	return m_apPlayers[ClientID]->GetCharacter();
 }
 
-void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount)
+void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount, int MapID)
 {
 	float a = 3 * 3.14159f / 2 + Angle;
 	//float a = get_angle(dir);
@@ -101,7 +103,7 @@ void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount)
 	for(int i = 0; i < Amount; i++)
 	{
 		float f = mix(s, e, float(i+1)/float(Amount+2));
-		CNetEvent_DamageInd *pEvent = (CNetEvent_DamageInd *)m_Events.Create(NETEVENTTYPE_DAMAGEIND, sizeof(CNetEvent_DamageInd));
+		CNetEvent_DamageInd *pEvent = (CNetEvent_DamageInd *)m_Events.Create(NETEVENTTYPE_DAMAGEIND, sizeof(CNetEvent_DamageInd), -1, MapID);
 		if(pEvent)
 		{
 			pEvent->m_X = (int)Pos.x;
@@ -111,10 +113,10 @@ void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount)
 	}
 }
 
-void CGameContext::CreateHammerHit(vec2 Pos)
+void CGameContext::CreateHammerHit(vec2 Pos, int MapID)
 {
 	// create the event
-	CNetEvent_HammerHit *pEvent = (CNetEvent_HammerHit *)m_Events.Create(NETEVENTTYPE_HAMMERHIT, sizeof(CNetEvent_HammerHit));
+	CNetEvent_HammerHit *pEvent = (CNetEvent_HammerHit *)m_Events.Create(NETEVENTTYPE_HAMMERHIT, sizeof(CNetEvent_HammerHit), -1, MapID);
 	if(pEvent)
 	{
 		pEvent->m_X = (int)Pos.x;
@@ -123,10 +125,10 @@ void CGameContext::CreateHammerHit(vec2 Pos)
 }
 
 
-void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage)
+void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, int MapID)
 {
 	// create the event
-	CNetEvent_Explosion *pEvent = (CNetEvent_Explosion *)m_Events.Create(NETEVENTTYPE_EXPLOSION, sizeof(CNetEvent_Explosion));
+	CNetEvent_Explosion *pEvent = (CNetEvent_Explosion *)m_Events.Create(NETEVENTTYPE_EXPLOSION, sizeof(CNetEvent_Explosion), -1, MapID);
 	if(pEvent)
 	{
 		pEvent->m_X = (int)Pos.x;
@@ -139,7 +141,7 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 		CCharacter *apEnts[MAX_CLIENTS];
 		float Radius = 135.0f;
 		float InnerRadius = 48.0f;
-		int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
+		int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER, MapID);
 		for(int i = 0; i < Num; i++)
 		{
 			vec2 Diff = apEnts[i]->m_Pos - Pos;
@@ -167,10 +169,10 @@ void create_smoke(vec2 Pos)
 	}
 }*/
 
-void CGameContext::CreatePlayerSpawn(vec2 Pos)
+void CGameContext::CreatePlayerSpawn(vec2 Pos, int MapID)
 {
 	// create the event
-	CNetEvent_Spawn *ev = (CNetEvent_Spawn *)m_Events.Create(NETEVENTTYPE_SPAWN, sizeof(CNetEvent_Spawn));
+	CNetEvent_Spawn *ev = (CNetEvent_Spawn *)m_Events.Create(NETEVENTTYPE_SPAWN, sizeof(CNetEvent_Spawn), -1, MapID);
 	if(ev)
 	{
 		ev->m_X = (int)Pos.x;
@@ -178,10 +180,10 @@ void CGameContext::CreatePlayerSpawn(vec2 Pos)
 	}
 }
 
-void CGameContext::CreateDeath(vec2 Pos, int ClientID)
+void CGameContext::CreateDeath(vec2 Pos, int ClientID, int MapID)
 {
 	// create the event
-	CNetEvent_Death *pEvent = (CNetEvent_Death *)m_Events.Create(NETEVENTTYPE_DEATH, sizeof(CNetEvent_Death));
+	CNetEvent_Death *pEvent = (CNetEvent_Death *)m_Events.Create(NETEVENTTYPE_DEATH, sizeof(CNetEvent_Death), -1, MapID);
 	if(pEvent)
 	{
 		pEvent->m_X = (int)Pos.x;
@@ -190,13 +192,13 @@ void CGameContext::CreateDeath(vec2 Pos, int ClientID)
 	}
 }
 
-void CGameContext::CreateSound(vec2 Pos, int Sound, int Mask)
+void CGameContext::CreateSound(vec2 Pos, int Sound, int Mask, int MapID)
 {
 	if (Sound < 0)
 		return;
 
 	// create a sound
-	CNetEvent_SoundWorld *pEvent = (CNetEvent_SoundWorld *)m_Events.Create(NETEVENTTYPE_SOUNDWORLD, sizeof(CNetEvent_SoundWorld), Mask);
+	CNetEvent_SoundWorld *pEvent = (CNetEvent_SoundWorld *)m_Events.Create(NETEVENTTYPE_SOUNDWORLD, sizeof(CNetEvent_SoundWorld), Mask, MapID);
 	if(pEvent)
 	{
 		pEvent->m_X = (int)Pos.x;
@@ -243,10 +245,19 @@ void CGameContext::SendChatTarget(int To, const char *pText, ...)
 		if(m_apPlayers[i])
 		{
 			Buffer.clear();
+			if(To < 0 && i == 0)
+			{
+				// one message for record
+				dynamic_string tmpBuf;
+				tmpBuf.copy(Buffer);
+				Server()->Localization()->Format_VL(tmpBuf, "en", pText, VarArgs);
+				Msg.m_pMessage = tmpBuf.buffer();
+				Server()->SendPackMsg(&Msg, MSGFLAG_VITAL|MSGFLAG_NOSEND, -1);
+			}
 			Server()->Localization()->Format_VL(Buffer, m_apPlayers[i]->GetLanguage(), pText, VarArgs);
 			
 			Msg.m_pMessage = Buffer.buffer();
-			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, i);
+			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL|MSGFLAG_NORECORD, i);
 		}
 	}
 	
@@ -390,6 +401,18 @@ void CGameContext::CheckPureTuning()
 	// might not be created yet during start up
 	if(!m_pController)
 		return;
+
+	if(	str_comp(m_pController->m_pGameType, "DM")==0 ||
+		str_comp(m_pController->m_pGameType, "TDM")==0 ||
+		str_comp(m_pController->m_pGameType, "CTF")==0)
+	{
+		CTuningParams p;
+		if(mem_comp(&p, &m_Tuning, sizeof(p)) != 0)
+		{
+			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "resetting tuning due to pure server");
+			m_Tuning = p;
+		}
+	}
 }
 
 void CGameContext::SendTuningParams(int ClientID)
@@ -496,7 +519,7 @@ void CGameContext::OnTick()
 			}
 
 			if(m_VoteEnforce == VOTE_ENFORCE_YES)
-			{
+			{	
 				Server()->SetRconCID(IServer::RCON_CID_VOTE);
 				Console()->ExecuteLine(m_aVoteCommand, -1);
 				Server()->SetRconCID(IServer::RCON_CID_SERV);
@@ -551,7 +574,7 @@ void CGameContext::OnClientEnter(int ClientID)
 	//world.insert_entity(&players[client_id]);
 	m_apPlayers[ClientID]->Respawn();
 	char aBuf[512];
-	str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientID), m_pController->GetTeamName(m_apPlayers[ClientID]->GetTeam()));
+	str_format(aBuf, sizeof(aBuf), "'%s' entered the map id = %d", Server()->ClientName(ClientID), Server()->ClientMapID(ClientID));
 	SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 
 	str_format(aBuf, sizeof(aBuf), "team_join player='%d:%s' team=%d", ClientID, Server()->ClientName(ClientID), m_apPlayers[ClientID]->GetTeam());
@@ -560,10 +583,27 @@ void CGameContext::OnClientEnter(int ClientID)
 	m_VoteUpdate = true;
 }
 
-void CGameContext::OnClientConnected(int ClientID)
+void CGameContext::KillCharacter(int ClientID)
+{
+	if(m_apPlayers[ClientID])
+	{
+		if(m_apPlayers[ClientID]->GetCharacter())
+			m_apPlayers[ClientID]->KillCharacter(-1);
+		//m_apPlayers->SetSpawning(false);
+	}
+}
+
+void CGameContext::OnClientConnected(int ClientID, int MapChange=1)
 {
 	// Check which team the player should be on
 	const int StartTeam = g_Config.m_SvTournamentMode ? TEAM_SPECTATORS : m_pController->GetAutoTeam(ClientID);
+	
+	if(MapChange)
+	{
+		delete m_apPlayers[ClientID];
+		m_apPlayers[ClientID] = 0;
+	}
+
 
 	m_apPlayers[ClientID] = new(ClientID) CPlayer(this, ClientID, StartTeam);
 	//players[client_id].init(client_id);
@@ -605,6 +645,17 @@ void CGameContext::OnClientDrop(int ClientID, const char *pReason)
 		if(m_apPlayers[i] && m_apPlayers[i]->m_SpectatorID == ClientID)
 			m_apPlayers[i]->m_SpectatorID = SPEC_FREEVIEW;
 	}
+
+	// check if all players left and game is paused => unpause
+	for (int i = 0; i < MAX_CLIENTS; ++i)
+	{
+		if(m_apPlayers[i] && m_apPlayers[i]->GetTeam() != TEAM_SPECTATORS)
+			return;
+	}
+	if(m_World.m_Paused)
+	{
+		m_pController->TogglePause();
+	}
 }
 
 void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
@@ -631,10 +682,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				return;
 
 			CNetMsg_Cl_Say *pMsg = (CNetMsg_Cl_Say *)pRawMsg;
-			if(!str_utf8_check(pMsg->m_pMessage))
-			{
-				return;
-			}
 			int Team = pMsg->m_Team ? pPlayer->GetTeam() : CGameContext::CHAT_ALL;
 			
 			// trim right and set maximum length to 128 utf8-characters
@@ -976,7 +1023,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			// set start infos
 			Server()->SetClientName(ClientID, pMsg->m_pName);
 			Server()->SetClientClan(ClientID, pMsg->m_pClan);
-			Server()->SetClientCountry(ClientID, pMsg->m_Country);
 			str_copy(pPlayer->m_TeeInfos.m_SkinName, pMsg->m_pSkin, sizeof(pPlayer->m_TeeInfos.m_SkinName));
 			pPlayer->m_TeeInfos.m_UseCustomColor = pMsg->m_UseCustomColor;
 			pPlayer->m_TeeInfos.m_ColorBody = pMsg->m_ColorBody;
@@ -1623,8 +1669,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	for(int i = 0; i < NUM_NETOBJTYPES; i++)
 		Server()->SnapSetStaticsize(i, m_NetObjHandler.GetObjSize(i));
 
-	m_Layers.Init(Kernel());
-	m_Collision.Init(&m_Layers);
+	
 
 	// reset everything here
 	//world = new GAMEWORLD;
@@ -1637,9 +1682,41 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	//for(int i = 0; i < MAX_CLIENTS; i++)
 	//	game.players[i].core.world = &game.world.core;
 
+	OnInitMap(0);
+
+	//game.world.insert_entity(game.Controller);
+
+#ifdef CONF_DEBUG
+	if(g_Config.m_DbgDummies)
+	{
+		for(int i = 0; i < g_Config.m_DbgDummies ; i++)
+		{
+			OnClientConnected(MAX_CLIENTS-i-1, 0);
+		}
+	}
+#endif
+}
+
+void CGameContext::OnInitMap(int MapID)
+{
+	if(MapID < (int)m_vLayers.size())//Map exists already, huray
+		return;
+	
+
+	IEngineMap* pMap = Server()->GetMap(MapID);
+
+	m_vLayers.push_back(CLayers());
+	m_vCollision.push_back(CCollision());
+
+	m_vLayers[MapID].Init(Kernel(), pMap);//Default map id
+	m_vCollision[MapID].Init(&(m_vLayers[MapID]));
+
+	m_pController->SetSpawnNum((MapID+1));
+
 	// create all entities from the game layer
-	CMapItemLayerTilemap *pTileMap = m_Layers.GameLayer();
-	CTile *pTiles = (CTile *)Kernel()->RequestInterface<IMap>()->GetData(pTileMap->m_Data);
+	CMapItemLayerTilemap *pTileMap = m_vLayers[MapID].GameLayer();
+	//CTile *pTiles = (CTile *)Kernel()->RequestInterface<IMap>()->GetData(pTileMap->m_Data);
+	CTile *pTiles = (CTile *)pMap->GetData(pTileMap->m_Data);
 
 
 
@@ -1659,23 +1736,17 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 			if(Index >= ENTITY_OFFSET)
 			{
 				vec2 Pos(x*32.0f+16.0f, y*32.0f+16.0f);
-				m_pController->OnEntity(Index-ENTITY_OFFSET, Pos);
+				m_pController->OnEntity(Index-ENTITY_OFFSET, Pos, MapID);
 			}
 		}
 	}
 
-	//game.world.insert_entity(game.Controller);
 
-#ifdef CONF_DEBUG
-	if(g_Config.m_DbgDummies)
-	{
-		for(int i = 0; i < g_Config.m_DbgDummies ; i++)
-		{
-			OnClientConnected(MAX_CLIENTS-i-1);
-		}
-	}
-#endif
+	char aBuf[128];
+	str_format(aBuf, sizeof(aBuf), "Initalized new Map with ID '%d'", MapID);
+	Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "multimap", aBuf);
 }
+
 
 void CGameContext::OnShutdown()
 {
@@ -1722,6 +1793,18 @@ bool CGameContext::IsClientPlayer(int ClientID)
 {
 	return m_apPlayers[ClientID] && m_apPlayers[ClientID]->GetTeam() == TEAM_SPECTATORS ? false : true;
 }
+
+void CGameContext::PrepareClientChangeMap(int ClientID)
+{
+	if (m_apPlayers[ClientID])
+	{
+		m_apPlayers[ClientID]->KillCharacter(WEAPON_WORLD);
+		delete m_apPlayers[ClientID];
+		m_apPlayers[ClientID] = nullptr;
+	}
+	m_apPlayers[ClientID] = new(ClientID) CPlayer(this, ClientID, TEAM_RED);
+}
+
 
 const char *CGameContext::GameType() { return m_pController && m_pController->m_pGameType ? m_pController->m_pGameType : ""; }
 const char *CGameContext::Version() { return GAME_VERSION; }

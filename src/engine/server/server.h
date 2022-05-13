@@ -4,6 +4,7 @@
 #define ENGINE_SERVER_SERVER_H
 
 #include <engine/server.h>
+#include <vector>
 
 
 class CSnapIDPool
@@ -126,6 +127,10 @@ public:
 
 		void Reset();
 
+		int m_MapID;
+		int m_NextMapID;
+		bool m_ChangeMap;
+		
 		char m_aLanguage[16];
 	};
 
@@ -138,7 +143,7 @@ public:
 	CEcon m_Econ;
 	CServerBan m_ServerBan;
 
-	IEngineMap *m_pMap;
+	std::vector<IEngineMap*> m_vpMap;
 
 	int64 m_GameStartTime;
 	//int m_CurrentGameTick;
@@ -151,10 +156,20 @@ public:
 	int64 m_Lastheartbeat;
 	//static NETADDR4 master_server;
 
-	char m_aCurrentMap[64];
-	unsigned m_CurrentMapCrc;
-	unsigned char *m_pCurrentMapData;
-	int m_CurrentMapSize;
+	enum
+	{
+		MAP_DEFAULT_ID=0,
+	};
+
+	struct CMapData
+	{
+		char m_aCurrentMap[64];
+		unsigned m_CurrentMapCrc;
+		unsigned char *m_pCurrentMapData;
+		int m_CurrentMapSize;
+	};
+
+	std::vector<CMapData> m_vMapData;
 
 	CDemoRecorder m_DemoRecorder;
 	CRegister m_Register;
@@ -168,6 +183,12 @@ public:
 	virtual void SetClientClan(int ClientID, char const *pClan);
 	virtual void SetClientCountry(int ClientID, int Country);
 	virtual void SetClientScore(int ClientID, int Score);
+
+	//Multimap
+	virtual void SetClientMap(int ClientID, int MapID);
+	virtual void SetClientMap(int ClientID, char* MapName);
+
+	virtual IEngineMap* GetMap(int MapID) const override {return m_vpMap[MapID];}
 
 	void Kick(int ClientID, const char *pReason);
 
@@ -184,10 +205,12 @@ public:
 	bool IsAuthed(int ClientID);
 	int GetClientInfo(int ClientID, CClientInfo *pInfo);
 	void GetClientAddr(int ClientID, char *pAddrStr, int Size);
+	std::string GetClientIP(int ClientID) const;
 	const char *ClientName(int ClientID);
 	const char *ClientClan(int ClientID);
 	int ClientCountry(int ClientID);
 	bool ClientIngame(int ClientID);
+	int ClientMapID(int ClientID) const override;
 	int MaxClients() const;
 
 	virtual int SendMsg(CMsgPacker *pMsg, int Flags, int ClientID);
@@ -198,7 +221,8 @@ public:
 	static int NewClientCallback(int ClientID, void *pUser);
 	static int DelClientCallback(int ClientID, const char *pReason, void *pUser);
 
-	void SendMap(int ClientID);
+	void SendMap(int ClientID, int MapID);
+	void ChangeClientMap(int ClientID);
 	void SendConnectionReady(int ClientID);
 	void SendRconLine(int ClientID, const char *pLine);
 	static void SendRconLineAuthed(const char *pLine, void *pUser);
@@ -214,8 +238,9 @@ public:
 
 	void PumpNetwork();
 
-	char *GetMapName();
+	char *GetMapName(int MapID, char* aMapName);
 	int LoadMap(const char *pMapName);
+	int LoadTMap(const char *pMapName);
 
 	void InitRegister(CNetServer *pNetServer, IEngineMasterServer *pMasterServer, IConsole *pConsole);
 	int Run();
@@ -225,13 +250,14 @@ public:
 	static void ConShutdown(IConsole::IResult *pResult, void *pUser);
 	static void ConRecord(IConsole::IResult *pResult, void *pUser);
 	static void ConStopRecord(IConsole::IResult *pResult, void *pUser);
-	static void ConMapReload(IConsole::IResult *pResult, void *pUser);
+	static void ConSetMapByID(IConsole::IResult *pResult, void *pUser);
+	static void ConSetMapByName(IConsole::IResult *pResult, void *pUser);
 	static void ConLogout(IConsole::IResult *pResult, void *pUser);
 	static void ConchainSpecialInfoupdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConchainMaxclientsperipUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConchainModCommandUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConchainConsoleOutputLevelUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
-
+	
 	void RegisterCommands();
 
 

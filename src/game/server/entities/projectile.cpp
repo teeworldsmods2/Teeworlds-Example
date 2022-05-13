@@ -5,8 +5,8 @@
 #include "projectile.h"
 
 CProjectile::CProjectile(CGameWorld *pGameWorld, int Type, int Owner, vec2 Pos, vec2 Dir, int Span,
-		int Damage, bool Explosive, float Force, int SoundImpact, int Weapon)
-: CEntity(pGameWorld, CGameWorld::ENTTYPE_PROJECTILE)
+		int Damage, bool Explosive, float Force, int SoundImpact, int Weapon, int MapID)
+: CEntity(pGameWorld, CGameWorld::ENTTYPE_PROJECTILE, MapID)
 {
 	m_Type = Type;
 	m_Pos = Pos;
@@ -61,19 +61,19 @@ void CProjectile::Tick()
 	float Ct = (Server()->Tick()-m_StartTick)/(float)Server()->TickSpeed();
 	vec2 PrevPos = GetPos(Pt);
 	vec2 CurPos = GetPos(Ct);
-	int Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &CurPos, 0);
+	int Collide = GameServer()->Collision(GetMapID())->IntersectLine(PrevPos, CurPos, &CurPos, 0);
 	CCharacter *OwnerChar = GameServer()->GetPlayerChar(m_Owner);
-	CCharacter *TargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, CurPos, 6.0f, CurPos, OwnerChar);
+	CCharacter *TargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, CurPos, 6.0f, CurPos, GetMapID(), OwnerChar);
 
 	m_LifeSpan--;
 
 	if(TargetChr || Collide || m_LifeSpan < 0 || GameLayerClipped(CurPos))
 	{
 		if(m_LifeSpan >= 0 || m_Weapon == WEAPON_GRENADE)
-			GameServer()->CreateSound(CurPos, m_SoundImpact);
+			GameServer()->CreateSound(CurPos, m_SoundImpact, -1, GetMapID());
 
 		if(m_Explosive)
-			GameServer()->CreateExplosion(CurPos, m_Owner, m_Weapon, false);
+			GameServer()->CreateExplosion(CurPos, m_Owner, m_Weapon, false, GetMapID());
 
 		else if(TargetChr)
 			TargetChr->TakeDamage(m_Direction * max(0.001f, m_Force), m_Damage, m_Owner, m_Weapon);
@@ -99,6 +99,9 @@ void CProjectile::FillInfo(CNetObj_Projectile *pProj)
 
 void CProjectile::Snap(int SnappingClient)
 {
+	if(GameServer()->Server()->ClientMapID(SnappingClient) != GetMapID())
+		return;
+	
 	float Ct = (Server()->Tick()-m_StartTick)/(float)Server()->TickSpeed();
 
 	if(NetworkClipped(SnappingClient, GetPos(Ct)))

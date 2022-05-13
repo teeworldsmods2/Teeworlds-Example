@@ -176,7 +176,9 @@ class CCharacterCore
 {
 	CWorldCore *m_pWorld;
 	CCollision *m_pCollision;
+	int m_MapID;
 public:
+	int GetMapID() const {return m_MapID;}
 	vec2 m_Pos;
 	vec2 m_Vel;
 
@@ -194,7 +196,7 @@ public:
 
 	int m_TriggeredEvents;
 
-	void Init(CWorldCore *pWorld, CCollision *pCollision);
+	void Init(CWorldCore *pWorld, CCollision *pCollision, int MapID);
 	void Reset();
 	void Tick(bool UseInput);
 	void Move();

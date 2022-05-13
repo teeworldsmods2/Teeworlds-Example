@@ -40,6 +40,7 @@
 	#include <fcntl.h>
 	#include <direct.h>
 	#include <errno.h>
+	#include <wincrypt.h>
 #else
 	#error NOT IMPLEMENTED
 #endif
@@ -302,6 +303,11 @@ unsigned io_read(IOHANDLE io, void *buffer, unsigned size)
 	return fread(buffer, 1, size, (FILE*)io);
 }
 
+unsigned io_unread_byte(IOHANDLE io, unsigned char byte)
+{
+	return ungetc(byte, (FILE*)io) == EOF;
+}
+
 unsigned io_skip(IOHANDLE io, int size)
 {
 	fseek((FILE*)io, size, SEEK_CUR);
@@ -496,8 +502,19 @@ void lock_wait(LOCK lock)
 #endif
 }
 
+void lock_release(LOCK lock)
+{
+#if defined(CONF_FAMILY_UNIX)
+	pthread_mutex_unlock((LOCKINTERNAL *)lock);
+#elif defined(CONF_FAMILY_WINDOWS)
+	LeaveCriticalSection((LPCRITICAL_SECTION)lock);
+#else
+	#error not implemented on this platform
+#endif
+}
 void lock_unlock(LOCK lock)
 {
+
 #if defined(CONF_FAMILY_UNIX)
 	pthread_mutex_unlock((LOCKINTERNAL *)lock);
 #elif defined(CONF_FAMILY_WINDOWS)
@@ -1870,30 +1887,7 @@ const char *str_utf8_skip_whitespaces(const char *str)
 	return str;
 }
 
-//TeeUniverses
-void str_append_num(char *dst, const char *src, int dst_size, int num)
-{
-	int s = strlen(dst);
-	int i = 0;
-	while(s < dst_size)
-	{
-		if(i>=num)
-		{
-			dst[s] = 0;
-			return;
-		}
-		
-		dst[s] = src[i];
-		if(!src[i]) /* check for null termination */
-			return;
-		s++;
-		i++;
-	}
-
-	dst[dst_size-1] = 0; /* assure null termination */
-}
-
-static int str_utf8_isstart(char c)
+int str_utf8_isstart(char c)
 {
 	if((c&0xC0) == 0x80) /* 10xxxxxx */
 		return 0;
@@ -2052,6 +2046,92 @@ unsigned str_quickhash(const char *str)
 	return hash;
 }
 
+struct SECURE_RANDOM_DATA
+{
+	int initialized;
+#if defined(CONF_FAMILY_WINDOWS)
+	HCRYPTPROV provider;
+#else
+	IOHANDLE urandom;
+#endif
+};
+
+static struct SECURE_RANDOM_DATA secure_random_data = { 0 };
+
+int secure_random_init()
+{
+	if(secure_random_data.initialized)
+	{
+		return 0;
+	}
+#if defined(CONF_FAMILY_WINDOWS)
+	if(CryptAcquireContext(&secure_random_data.provider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
+	{
+		secure_random_data.initialized = 1;
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
+#else
+	secure_random_data.urandom = io_open("/dev/urandom", IOFLAG_READ);
+	if(secure_random_data.urandom)
+	{
+		secure_random_data.initialized = 1;
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
+#endif
+}
+
+void secure_random_fill(void *bytes, unsigned length)
+{
+	if(!secure_random_data.initialized)
+	{
+		dbg_msg("secure", "called secure_random_fill before secure_random_init");
+		dbg_break();
+	}
+#if defined(CONF_FAMILY_WINDOWS)
+	if(!CryptGenRandom(secure_random_data.provider, length, bytes))
+	{
+		dbg_msg("secure", "CryptGenRandom failed, last_error=%d", GetLastError());
+		dbg_break();
+	}
+#else
+	if(length != io_read(secure_random_data.urandom, bytes, length))
+	{
+		dbg_msg("secure", "io_read returned with a short read");
+		dbg_break();
+	}
+#endif
+}
+
+//TeeUniverses
+void str_append_num(char *dst, const char *src, int dst_size, int num)
+{
+	int s = strlen(dst);
+	int i = 0;
+	while(s < dst_size)
+	{
+		if(i >= num)
+		{
+			dst[s] = 0;
+			return;
+		}
+
+		dst[s] = src[i];
+		if(!src[i]) /* check for null termination */
+			return;
+		s++;
+		i++;
+	}
+
+	dst[dst_size - 1] = 0; /* assure null termination */
+}
 
 #if defined(__cplusplus)
 }

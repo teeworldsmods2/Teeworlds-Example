@@ -4,6 +4,7 @@
 #define GAME_SERVER_GAMECONTROLLER_H
 
 #include <base/vmath.h>
+#include <vector>
 
 /*
 	Class: Game Controller
@@ -12,8 +13,23 @@
 */
 class IGameController
 {
-	vec2 m_aaSpawnPoints[3][64];
-	int m_aNumSpawnPoints[3];
+	enum
+	{
+		NUM_SPAWN_TYPES = 3,
+		NUM_SPAWN_PER_TYPE = 64,
+		NUM_SPAWN_WORLD = 3*64,
+	};
+
+	struct SpawnData {
+		vec2 m_aaSpawnPoints[3][64];
+	};
+
+	std::vector<SpawnData> m_vSpawnPoints;
+
+	struct NumSpawnData {
+		int m_aNumSpawnPoints[3];
+	};
+	std::vector<NumSpawnData> m_vNumSpawnPoints;
 
 	class CGameContext *m_pGameServer;
 	class IServer *m_pServer;
@@ -37,8 +53,8 @@ protected:
 		float m_Score;
 	};
 
-	float EvaluateSpawnPos(CSpawnEval *pEval, vec2 Pos);
-	void EvaluateSpawnType(CSpawnEval *pEval, int Type);
+	float EvaluateSpawnPos(CSpawnEval *pEval, vec2 Pos, int MapID);
+	void EvaluateSpawnType(CSpawnEval *pEval, int Type, int MapID);
 	bool EvaluateSpawn(class CPlayer *pP, vec2 *pPos);
 
 	void CycleMap();
@@ -104,7 +120,7 @@ public:
 		Returns:
 			bool?
 	*/
-	virtual bool OnEntity(int Index, vec2 Pos);
+	virtual bool OnEntity(int Index, vec2 Pos, int MapID);
 
 	/*
 		Function: on_CCharacter_spawn
@@ -131,7 +147,7 @@ public:
 	virtual void OnPlayerInfoChange(class CPlayer *pP);
 
 	//
-	virtual bool CanSpawn(int Team, vec2 *pPos);
+	virtual bool CanSpawn(int Team, vec2 *pPos, int MapID);
 
 	/*
 
@@ -142,6 +158,8 @@ public:
 	bool CheckTeamBalance();
 	bool CanChangeTeam(CPlayer *pPplayer, int JoinTeam);
 	int ClampTeam(int Team);
+
+	void SetSpawnNum(int MapNum);
 
 	virtual void PostReset();
 };

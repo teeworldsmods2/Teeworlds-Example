@@ -35,7 +35,7 @@
 	void *POOLTYPE::operator new(size_t Size, int id) \
 	{ \
 		dbg_assert(sizeof(POOLTYPE) == Size, "size error"); \
-		dbg_assert(!ms_PoolUsed##POOLTYPE[id], "already used"); \
+		/*dbg_assert(!ms_PoolUsed##POOLTYPE[id], "already used");*/ \
 		/*dbg_msg("pool", "++ %s %d", #POOLTYPE, id);*/ \
 		ms_PoolUsed##POOLTYPE[id] = 1; \
 		mem_zero(ms_PoolData##POOLTYPE[id], Size); \
@@ -67,14 +67,18 @@ protected:
 	bool m_MarkedForDestroy;
 	int m_ID;
 	int m_ObjType;
+	int m_MapID;
 public:
-	CEntity(CGameWorld *pGameWorld, int Objtype);
+	CEntity(CGameWorld *pGameWorld, int Objtype, int MapID);
 	virtual ~CEntity();
 
 	class CGameWorld *GameWorld() { return m_pGameWorld; }
 	class CGameContext *GameServer() { return GameWorld()->GameServer(); }
 	class IServer *Server() { return GameWorld()->Server(); }
 
+	int GetMapID() const { return m_MapID; }
+	float GetProximityRadius() const	{ return m_ProximityRadius; }
+	const vec2 &GetPos() const			{ return m_Pos; }
 
 	CEntity *TypeNext() { return m_pNextTypeEntity; }
 	CEntity *TypePrev() { return m_pPrevTypeEntity; }

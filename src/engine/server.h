@@ -4,6 +4,12 @@
 #define ENGINE_SERVER_H
 #include "kernel.h"
 #include "message.h"
+#include <string>
+#include <vector>
+	
+#include <engine/map.h>
+#include <game/generated/protocol.h>
+#include <engine/shared/protocol.h>
 
 class IServer : public IInterface
 {
@@ -14,13 +20,14 @@ protected:
 
 public:
 	class CLocalization* m_pLocalization;
+	
 	enum
 	{
 		AUTHED_NO=0,
 		AUTHED_MOD,
 		AUTHED_ADMIN,
 	};
-public:
+
 	/*
 		Structure: CClientInfo
 	*/
@@ -42,6 +49,11 @@ public:
 	virtual bool ClientIngame(int ClientID) = 0;
 	virtual int GetClientInfo(int ClientID, CClientInfo *pInfo) = 0;
 	virtual void GetClientAddr(int ClientID, char *pAddrStr, int Size) = 0;
+	virtual int ClientMapID(int ClientID) const = 0;
+
+	virtual std::string GetClientIP(int ClientID) const = 0;
+
+	virtual IEngineMap* GetMap(int MapID) const = 0;
 
 	virtual int SendMsg(CMsgPacker *pMsg, int Flags, int ClientID) = 0;
 
@@ -58,6 +70,10 @@ public:
 	virtual void SetClientClan(int ClientID, char const *pClan) = 0;
 	virtual void SetClientCountry(int ClientID, int Country) = 0;
 	virtual void SetClientScore(int ClientID, int Score) = 0;
+
+	//Multimap
+	virtual void SetClientMap(int ClientID, int MapID) = 0;
+	virtual void SetClientMap(int ClientID, char* MapName) = 0;
 
 	virtual int SnapNewID() = 0;
 	virtual void SnapFreeID(int ID) = 0;
@@ -87,6 +103,7 @@ class IGameServer : public IInterface
 protected:
 public:
 	virtual void OnInit() = 0;
+	virtual void OnInitMap(int MapID) = 0;
 	virtual void OnConsoleInit() = 0;
 	virtual void OnShutdown() = 0;
 
@@ -97,11 +114,14 @@ public:
 
 	virtual void OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID) = 0;
 
-	virtual void OnClientConnected(int ClientID) = 0;
+	virtual void OnClientConnected(int ClientID, int MapChange) = 0;
+	virtual void KillCharacter(int ClientID) = 0;
 	virtual void OnClientEnter(int ClientID) = 0;
 	virtual void OnClientDrop(int ClientID, const char *pReason) = 0;
 	virtual void OnClientDirectInput(int ClientID, void *pInput) = 0;
 	virtual void OnClientPredictedInput(int ClientID, void *pInput) = 0;
+
+	virtual void PrepareClientChangeMap(int ClientID) = 0;
 
 	virtual bool IsClientReady(int ClientID) = 0;
 	virtual bool IsClientPlayer(int ClientID) = 0;

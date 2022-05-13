@@ -19,14 +19,21 @@ the game, including new versions, custom maps and much more.
 
 Originally written by Magnus Auvinen.
 
+tw06mod-multimap branch
+---------------------------
+Author: AssassinTee, MikiGamer, Kurosio
+
+Features:
+- Teeworlds with multiple maps at once. (AssassinTee, MikiGamer)
+- Load maps by json file. (Kurosio)
+
 tw06mod-localization branch
 ---------------------------
 Author: Necropotame, FlowerFell-Sans
 
 Features:
 - Localization System (In InfClass) (Necropotame)
-- Chat command for Switch languages (FlowerFell-Sans)
-- Json Example (FlowerFell-Sans)
+- Chat command for change languages (FlowerFell-Sans)
 
 
 tw06server branch

@@ -18,7 +18,7 @@ public:
 	int m_DropTick;
 	int m_GrabTick;
 
-	CFlag(CGameWorld *pGameWorld, int Team);
+	CFlag(CGameWorld *pGameWorld, int Team, int MapID);
 
 	virtual void Reset();
 	virtual void TickPaused();

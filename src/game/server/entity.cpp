@@ -7,13 +7,15 @@
 //////////////////////////////////////////////////
 // Entity
 //////////////////////////////////////////////////
-CEntity::CEntity(CGameWorld *pGameWorld, int ObjType)
+CEntity::CEntity(CGameWorld *pGameWorld, int ObjType, int MapID)
 {
 	m_pGameWorld = pGameWorld;
 
 	m_ObjType = ObjType;
 	m_Pos = vec2(0,0);
 	m_ProximityRadius = 0;
+
+	m_MapID = MapID;
 
 	m_MarkedForDestroy = false;
 	m_ID = Server()->SnapNewID();
@@ -51,6 +53,6 @@ int CEntity::NetworkClipped(int SnappingClient, vec2 CheckPos)
 
 bool CEntity::GameLayerClipped(vec2 CheckPos)
 {
-	return round_to_int(CheckPos.x)/32 < -200 || round_to_int(CheckPos.x)/32 > GameServer()->Collision()->GetWidth()+200 ||
-			round_to_int(CheckPos.y)/32 < -200 || round_to_int(CheckPos.y)/32 > GameServer()->Collision()->GetHeight()+200 ? true : false;
+	return round_to_int(CheckPos.x)/32 < -200 || round_to_int(CheckPos.x)/32 > GameServer()->Collision(GetMapID())->GetWidth()+200 ||
+			round_to_int(CheckPos.y)/32 < -200 || round_to_int(CheckPos.y)/32 > GameServer()->Collision(GetMapID())->GetHeight()+200 ? true : false;
 }

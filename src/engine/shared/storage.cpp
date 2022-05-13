@@ -403,6 +403,12 @@ public:
 		}
 		return p;
 	}
+
+	const char *GetDataPath(const char *pFilename, char *pBuffer, unsigned BufferSize)
+	{
+		str_format(pBuffer, BufferSize, "%s%s%s", m_aDatadir, !m_aDatadir[0] ? "" : "/", pFilename);
+		return pBuffer;
+	}
 };
 
 IStorage *CreateStorage(const char *pApplicationName, int StorageType, int NumArgs, const char **ppArguments) { return CStorage::Create(pApplicationName, StorageType, NumArgs, ppArguments); }

@@ -3,8 +3,8 @@
 #include <game/server/gamecontext.h>
 #include "flag.h"
 
-CFlag::CFlag(CGameWorld *pGameWorld, int Team)
-: CEntity(pGameWorld, CGameWorld::ENTTYPE_FLAG)
+CFlag::CFlag(CGameWorld *pGameWorld, int Team, int MapID)
+: CEntity(pGameWorld, CGameWorld::ENTTYPE_FLAG, MapID)
 {
 	m_Team = Team;
 	m_ProximityRadius = ms_PhysSize;
@@ -32,6 +32,9 @@ void CFlag::TickPaused()
 
 void CFlag::Snap(int SnappingClient)
 {
+	if(GameServer()->Server()->ClientMapID(SnappingClient) != GetMapID())
+		return;
+	
 	if(NetworkClipped(SnappingClient))
 		return;
 
