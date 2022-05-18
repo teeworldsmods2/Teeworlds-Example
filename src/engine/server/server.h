@@ -244,9 +244,7 @@ public:
 	virtual void SnapFreeID(int ID);
 	virtual void *SnapNewItem(int Type, int ID, int Size);
 	void SnapSetStaticsize(int ItemType, int Size);
-	// sixup
-	ConChainSixupUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
-
+	
 public:
 	virtual const char* GetClientLanguage(int ClientID);
 	virtual void SetClientLanguage(int ClientID, const char* pLanguage);

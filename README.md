@@ -21,12 +21,13 @@ Originally written by Magnus Auvinen.
 
 tw06mod-localization branch
 ---------------------------
-Author: Necropotame, FlowerFell-Sans
+Author: Necropotame, FlowerFell-Sans, ErrorDreemurr
 
 Features:
 - Localization System (In InfClass) (Necropotame)
 - Chat command for Switch languages (FlowerFell-Sans)
 - Json Example (FlowerFell-Sans)
+- Add iculib (ErrorDreemurr)
 
 tw06server branch
 ---------------------------
