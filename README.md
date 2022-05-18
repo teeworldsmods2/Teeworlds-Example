@@ -28,6 +28,7 @@ Features:
 - Chat command for Switch languages (FlowerFell-Sans)
 - Json Example (FlowerFell-Sans)
 - Add iculib (ErrorDreemurr)
+- Localization for vanilla system chat (EDreemurr)
 
 tw06server branch
 ---------------------------

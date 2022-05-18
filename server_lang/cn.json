@@ -8,5 +8,33 @@
             "key": "Available languages: {str:ListOfLanguage}",
             "value": "可用语言: {str:ListOfLanguage}"
         },
+        {
+            "key": "'{str:PlayerName}' entered and joined the {str:Team}",
+            "value": "'{str:PlayerName}' 进入服务器并加入 {str:Team}"
+        },
+        {
+            "key": "'{str:PlayerName}' has left the game ({str:Reason})",
+            "value": "'{str:PlayerName}' 离开了游戏 ({str:Reason})"
+        },
+        {
+            "key": "'{str:PlayerName}' has left the game",
+            "value": "'{str:PlayerName}' 离开了游戏"
+        },
+        {
+            "key": "Spectators aren't allowed to start a vote.",
+            "value": "旁观者不能提出一个投票."
+        },
+        {
+            "key": "Wait for current vote to end before calling a new one.",
+            "value": "等待当前投票结束后再提出新的投票."
+        },
+        {
+            "key": "You must wait {str:Time} seconds before making another vote",
+            "value": "你必须等待 {str:Time} 秒才能再次提出另一个投票"
+        },
+        {
+            "key": "'{str:PlayerName}' called vote to change server option '{str:Option}' (str:Reason)",
+            "value": "'{str:PlayerName}' 提议修改服务器设置 '{str:Option}' (str:Reason)"
+        }
     ]
 }
