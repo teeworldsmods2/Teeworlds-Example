@@ -35,6 +35,90 @@
         {
             "key": "'{str:PlayerName}' called vote to change server option '{str:Option}' (str:Reason)",
             "value": "'{str:PlayerName}' 提议修改服务器设置 '{str:Option}' (str:Reason)"
+        },
+        {
+            "key": "'{str:Option}' isn't an option on this server",
+            "value": "'{str:Option}' 在此服务器上并不是一个设置"
+        },
+        {
+            "key": "Server does not allow voting to kick players",
+            "value": "服务器不允许投票踢出玩家"
+        },
+        {
+            "key": "Kick voting requires {str:Num} players on the server",
+            "value": "在这个服务器上开始踢出的投票需要{str:Num}名玩家"
+        },
+        {
+            "key": "Invalid client id to kick",
+            "value": "缺少要踢出的客户端ID"
+        },
+        {
+            "key": "You can't kick yourself",
+            "value": "你不能踢出你自己"
+        },
+        {
+            "key": "You can't kick admins",
+            "value": "你不能踢出管理员"
+        },
+        {
+            "key": "'{str:Player}' called for vote to kick you",
+            "value": "'{str:Player}' 提议踢出你"
+        },
+        {
+            "key": "'{str:P1}' called for vote to kick '{str:P2}' ({str:R})",
+            "value": "'{str:P1}' 提议踢出 '{str:P2}' ({str:R})"
+        },
+        {
+            "key": "Server does not allow voting to move players to spectators",
+            "value": "服务器不允许投票移动玩家到旁观"
+        },
+        {
+            "key": "Invalid client id to move",
+            "value": "缺少要移动的客户端ID"
+        },
+        {
+            "key": "You can't move yourself",
+            "value": "你不能移动你自己"
+        },
+        {
+            "key": "'{str:P1}' called for vote to move '{str:P2}' to spectators ({str:R})",
+            "value": "'{str:P1}' 提议将 '{str:P2}' 移到旁观 ({str:R})"
+        },
+        {
+            "key": "Teams are locked",
+            "value": "队伍已经锁定"
+        },
+        {
+            "key": "Teams must be balanced, please join other team",
+            "value": "队伍人数必须均衡，请加入另一个队伍"
+        },
+        {
+            "key": "Only {str:ID} active players are allowed",
+            "value": "只允许 {str:ID} 名玩家游玩"
+        },
+        {
+            "key": "Invalid spectator id used",
+            "value": "该旁观者ID没有被使用"
+        },
+        {
+            "key": "'{str:Old}' changed name to '{str:New}'",
+            "value": "'{str:Old}' 改名叫 '{str:New}'"
+        },
+        {
+            "key": "'{str:P}' joined the spectators",
+            "value": "'{str:P}' 加入了旁观"
+        },
+        {
+            "key": "'{str:P}' joined the blueteam",
+            "value": "'{str:P}' 加入了蓝队"
+        },
+        {
+            "key": "'{str:P}' joined the redteam",
+            "value": "'{str:P}' 加入了红队"
+        },
+        {
+            "key": "'{str:P}' joined the game",
+            "value": "'{str:P}' 加入了游戏"
         }
     ]
 }

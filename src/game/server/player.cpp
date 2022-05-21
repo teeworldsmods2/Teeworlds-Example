@@ -313,8 +313,19 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 	char aBuf[512];
 	if(DoChatMsg)
 	{
-		str_format(aBuf, sizeof(aBuf), "'%s' joined the %s", Server()->ClientName(m_ClientID), GameServer()->m_pController->GetTeamName(Team));
-		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+		if(Team == TEAM_SPECTATORS)
+		{
+			GameServer()->SendChatTarget(-1, "'{str:P}' joined the spectators","P", Server()->ClientName(m_ClientID));
+		}else if(Team == TEAM_RED)
+		{
+			GameServer()->SendChatTarget(-1, "'{str:P}' joined the redteam","P", Server()->ClientName(m_ClientID));
+		}else if(Team == TEAM_BLUE)
+		{
+			GameServer()->SendChatTarget(-1, "'{str:P}' joined the blueteam","P", Server()->ClientName(m_ClientID));
+		}else
+		{
+			GameServer()->SendChatTarget(-1, "'{str:P}' joined the game","P", Server()->ClientName(m_ClientID));
+		}
 	}
 
 	KillCharacter();
