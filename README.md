@@ -19,7 +19,7 @@ the game, including new versions, custom maps and much more.
 
 Originally written by Magnus Auvinen.
 
-tw06mod-harmony
+tw06mod-main
 ---------------------------
 Author: ErrorDreemurr
 
