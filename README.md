@@ -19,13 +19,14 @@ the game, including new versions, custom maps and much more.
 
 Originally written by Magnus Auvinen.
 
-tw06mod-main
+tw06mod-main branch
 ---------------------------
 Author: ErrorDreemurr
 
 Features:
 - Add iculib (ErrorDreemurr)
 - Localization for vanilla system chat (ErrorDreemurr)
+- Enity Bug fix (ErrorDreemurr)
 
 tw06mod-localization branch
 ---------------------------
