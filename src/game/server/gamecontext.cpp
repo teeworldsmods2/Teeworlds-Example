@@ -1278,9 +1278,9 @@ void CGameContext::ConLockTeams(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	pSelf->m_LockTeams ^= 1;
 	if(pSelf->m_LockTeams)
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "Teams were locked");
+		pSelf->SendChatTarget(-1, "Teams were locked");
 	else
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "Teams were unlocked");
+		pSelf->SendChatTarget(-1, "Teams were unlocked");
 }
 
 void CGameContext::ConAddVote(IConsole::IResult *pResult, void *pUserData)
@@ -1432,8 +1432,7 @@ void CGameContext::ConForceVote(IConsole::IResult *pResult, void *pUserData)
 		{
 			if(str_comp_nocase(pValue, pOption->m_aDescription) == 0)
 			{
-				str_format(aBuf, sizeof(aBuf), "admin forced server option '%s' (%s)", pValue, pReason);
-				pSelf->SendChatTarget(-1, aBuf);
+				pSelf->SendChatTarget(-1, "admin forced server option '{str:O}' ({str:R})", "O", pValue, "R", pReason);
 				pSelf->Console()->ExecuteLine(pOption->m_aCommand, -1);
 				break;
 			}
@@ -1478,9 +1477,7 @@ void CGameContext::ConForceVote(IConsole::IResult *pResult, void *pUserData)
 			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "Invalid client id to move");
 			return;
 		}
-
-		str_format(aBuf, sizeof(aBuf), "admin moved '%s' to spectator (%s)", pSelf->Server()->ClientName(SpectateID), pReason);
-		pSelf->SendChatTarget(-1, aBuf);
+		pSelf->SendChatTarget(-1, "admin moved '{str:N}' to spectator ({str:R})", "N", pSelf->Server()->ClientName(SpectateID), "R", pReason);
 		str_format(aBuf, sizeof(aBuf), "set_team %d -1 %d", SpectateID, g_Config.m_SvVoteSpectateRejoindelay);
 		pSelf->Console()->ExecuteLine(aBuf, -1);
 	}
@@ -1512,8 +1509,7 @@ void CGameContext::ConVote(IConsole::IResult *pResult, void *pUserData)
 	else if(str_comp_nocase(pResult->GetString(0), "no") == 0)
 		pSelf->m_VoteEnforce = CGameContext::VOTE_ENFORCE_NO;
 	char aBuf[256];
-	str_format(aBuf, sizeof(aBuf), "admin forced vote %s", pResult->GetString(0));
-	pSelf->SendChatTarget(-1, aBuf);
+	pSelf->SendChatTarget(-1, "admin forced vote {str:E}", "E", pResult->GetString(0));
 	str_format(aBuf, sizeof(aBuf), "forcing vote %s", pResult->GetString(0));
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 }
@@ -1560,9 +1556,9 @@ void CGameContext::ConAbout(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConLanguage(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-
+	
 	int ClientID = pResult->GetClientID();
-
+	
 	const char *pLanguageCode = (pResult->NumArguments()>0) ? pResult->GetString(0) : 0x0;
 	char aFinalLanguageCode[8];
 	aFinalLanguageCode[0] = 0;
@@ -1581,17 +1577,24 @@ void CGameContext::ConLanguage(IConsole::IResult *pResult, void *pUserData)
 		}
 	}
 	
+	
+
 	if(aFinalLanguageCode[0])
 	{
 		pSelf->SetClientLanguage(ClientID, aFinalLanguageCode);
-		pSelf->SendChatTarget(ClientID, _("Language successfully switched to English"));
+		pSelf->SendChatTarget(ClientID, "Language successfully switched to English");
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "%s change language to %s", pSelf->Server()->ClientName(ClientID), aFinalLanguageCode);
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "language", aBuf);	
 	}
 	else
 	{
 		const char* pLanguage = pSelf->m_apPlayers[ClientID]->GetLanguage();
-		const char* pTxtUnknownLanguage = pSelf->Server()->Localization()->Localize(pLanguage, _("Unknown language"));
+		const char* pTxtUnknownLanguage = pSelf->Server()->Localization()->Localize(pLanguage, _("Unknown language or no input language code"));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "language", pTxtUnknownLanguage);	
 		
+		pSelf->SendChatTarget(ClientID, pTxtUnknownLanguage);
+
 		dynamic_string BufferList;
 		int BufferIter = 0;
 		for(int i=0; i<pSelf->Server()->Localization()->m_pLanguages.size(); i++)
@@ -1606,8 +1609,8 @@ void CGameContext::ConLanguage(IConsole::IResult *pResult, void *pUserData)
 		
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "language", Buffer.buffer());
 
-        pSelf->SendChatTarget(ClientID, Buffer.buffer());
-    }
+		pSelf->SendChatTarget(ClientID, Buffer.buffer());
+	}
 	
 	return;
 }
@@ -1658,7 +1661,7 @@ void CGameContext::OnConsoleInit()
 	Console()->Register("vote", "r", CFGFLAG_SERVER, ConVote, this, "Force a vote to yes/no");
 	
 	Console()->Register("about", "", CFGFLAG_CHAT, ConAbout, this, "Show information about the mod");
-	Console()->Register("language", "s", CFGFLAG_CHAT, ConLanguage, this, "Show information about the mod");
+	Console()->Register("language", "?s", CFGFLAG_CHAT, ConLanguage, this, "change language");
 	
 	Console()->Chain("sv_motd", ConchainSpecialMotdupdate, this);
 }

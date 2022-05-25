@@ -5,6 +5,10 @@
     		"value": "语言成功切换为中文"
     	},
         {
+            "key": "Unknown language or no input language code",
+            "value": "未知语言或没有输入语言代码"
+        },
+        {
             "key": "Available languages: {str:ListOfLanguage}",
             "value": "可用语言: {str:ListOfLanguage}"
         },
@@ -27,6 +31,30 @@
         {
             "key": "Wait for current vote to end before calling a new one.",
             "value": "等待当前投票结束后再提出新的投票."
+        },
+        {
+            "key": "Vote aborted",
+            "value": "投票中止"
+        },
+        {
+            "key": "Vote passed",
+            "value": "投票通过"
+        },
+        {
+            "key": "Vote failed",
+            "value": "投票否决"
+        },
+        {
+            "key":  "admin forced server option '{str:O}' ({str:R})",
+            "value":  "管理员修改了服务器设置 '{str:O}' ({str:R})"
+        },
+        {
+            "key": "admin moved '{str:N}' to spectator ({str:R})",
+            "value": "管理员将 '{str:N}' 移到旁观 ({str:R})"
+        },
+        {
+            "key": "admin forced vote {str:E}",
+            "value": "管理员强制为投票执行 {str:E}"
         },
         {
             "key": "You must wait {str:Time} seconds before making another vote",
@@ -87,6 +115,18 @@
         {
             "key": "Teams are locked",
             "value": "队伍已经锁定"
+        },
+        {
+            "key": "Teams were swapped",
+            "value": "队伍交换"
+        },
+        {
+            "key": "Teams were locked",
+            "value": "队伍锁定"
+        },
+        {
+            "key": "Teams were unlocked",
+            "value": "队伍解锁"
         },
         {
             "key": "Teams must be balanced, please join other team",

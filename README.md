@@ -27,10 +27,12 @@ Features:
 - Add iculib (ErrorDreemurr)
 - Localization for vanilla system chat (ErrorDreemurr)
 - Enity Bug fix (ErrorDreemurr)
+- Switch languages command bug fix (ErrorDreemurr)
+- Chat command update (WIP)
 
 tw06mod-localization branch
 ---------------------------
-Author: Necropotame, FlowerFell-Sans, ErrorDreemurr
+Author: Necropotame, FlowerFell-Sans
 
 Features:
 - Localization System (In InfClass) (Necropotame)
