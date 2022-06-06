@@ -53,8 +53,12 @@
             "value": "管理员将 '{str:N}' 移到旁观 ({str:R})"
         },
         {
-            "key": "admin forced vote {str:E}",
-            "value": "管理员强制为投票执行 {str:E}"
+            "key": "admin forced vote yes",
+            "value": "管理员强制为投票执行通过"
+        },
+        {
+            "key": "admin forced vote no",
+            "value": "管理员强制为投票执行否决"
         },
         {
             "key": "You must wait {str:Time} seconds before making another vote",

@@ -1505,11 +1505,16 @@ void CGameContext::ConVote(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 	if(str_comp_nocase(pResult->GetString(0), "yes") == 0)
+	{
 		pSelf->m_VoteEnforce = CGameContext::VOTE_ENFORCE_YES;
+		pSelf->SendChatTarget(-1, "admin forced vote yes");
+	}
 	else if(str_comp_nocase(pResult->GetString(0), "no") == 0)
+	{
 		pSelf->m_VoteEnforce = CGameContext::VOTE_ENFORCE_NO;
+		pSelf->SendChatTarget(-1, "admin forced vote no");	
+	}
 	char aBuf[256];
-	pSelf->SendChatTarget(-1, "admin forced vote {str:E}", "E", pResult->GetString(0));
 	str_format(aBuf, sizeof(aBuf), "forcing vote %s", pResult->GetString(0));
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 }
