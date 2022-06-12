@@ -37,7 +37,6 @@ class CConsole : public IConsole
 	bool m_StoreCommands;
 	const char *m_paStrokeStr[2];
 	CCommand *m_pFirstCommand;
-
 	class CExecFile
 	{
 	public:

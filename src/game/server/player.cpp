@@ -222,12 +222,12 @@ void CPlayer::OnDisconnect(const char *pReason)
 		if(pReason && *pReason)
 		{
 			str_format(aBuf, sizeof(aBuf), "'%s' has left the game (%s)", Server()->ClientName(m_ClientID), pReason);
-			GameServer()->SendChatTarget(-1, "'{str:PlayerName}' has left the game ({str:Reason})", "PlayerName", Server()->ClientName(m_ClientID), "Reason", pReason);
+			GameServer()->SendChatTarget(-1, _("'{str:PlayerName}' has left the game ({str:Reason})"), "PlayerName", Server()->ClientName(m_ClientID), "Reason", pReason);
 		}
 		else
 		{
 			str_format(aBuf, sizeof(aBuf), "'%s' has left the game", Server()->ClientName(m_ClientID));
-			GameServer()->SendChatTarget(-1, "'{str:PlayerName}' has left the game", "PlayerName", Server()->ClientName(m_ClientID));
+			GameServer()->SendChatTarget(-1, _("'{str:PlayerName}' has left the game"), "PlayerName", Server()->ClientName(m_ClientID));
 		}
 
 		str_format(aBuf, sizeof(aBuf), "leave player='%d:%s'", m_ClientID, Server()->ClientName(m_ClientID));
@@ -315,16 +315,16 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 	{
 		if(Team == TEAM_SPECTATORS)
 		{
-			GameServer()->SendChatTarget(-1, "'{str:P}' joined the spectators","P", Server()->ClientName(m_ClientID));
+			GameServer()->SendChatTarget(-1, _("'{str:Player}' joined the spectators"),"Player", Server()->ClientName(m_ClientID));
 		}else if(Team == TEAM_RED)
 		{
-			GameServer()->SendChatTarget(-1, "'{str:P}' joined the redteam","P", Server()->ClientName(m_ClientID));
+			GameServer()->SendChatTarget(-1, _("'{str:Player}' joined the redteam"),"Player", Server()->ClientName(m_ClientID));
 		}else if(Team == TEAM_BLUE)
 		{
-			GameServer()->SendChatTarget(-1, "'{str:P}' joined the blueteam","P", Server()->ClientName(m_ClientID));
+			GameServer()->SendChatTarget(-1, _("'{str:P}' joined the blueteam"),"Player", Server()->ClientName(m_ClientID));
 		}else
 		{
-			GameServer()->SendChatTarget(-1, "'{str:P}' joined the game","P", Server()->ClientName(m_ClientID));
+			GameServer()->SendChatTarget(-1, _("'{str:P}' joined the game"),"Player", Server()->ClientName(m_ClientID));
 		}
 	}
 

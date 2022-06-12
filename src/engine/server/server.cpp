@@ -1157,38 +1157,16 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 	p.AddString(aBuf, 6);
 
 	p.AddString(GameServer()->Version(), 32);
-	if (Extended)
-	{
-		if (MaxClients <= MAX_CLIENTS)
-		{
-			p.AddString(g_Config.m_SvName, 256);
-		}
-		else
-		{
-			str_format(aBuf, sizeof(aBuf), "%s [%d/%d]", g_Config.m_SvName, ClientCount, m_NetServer.MaxClients());
-			p.AddString(aBuf, 256);
-		}
-	}
-	else
-	{
-		if (ClientCount < VANILLA_MAX_CLIENTS)
-			p.AddString(g_Config.m_SvName, 64);
-		else
-		{
-			str_format(aBuf, sizeof(aBuf), "%s [%d/%d]", g_Config.m_SvName, ClientCount, m_NetServer.MaxClients());
-			p.AddString(aBuf, 64);
-		}
-	}
+	
+	str_format(aBuf, sizeof(aBuf), "%s [%d/%d]", g_Config.m_SvName, ClientCount, m_NetServer.MaxClients());
+	
+	p.AddString(aBuf, 256);
+
 	p.AddString(GetMapName(), 32);
 	
 	// gametype
-	if(MaxClients > VANILLA_MAX_CLIENTS)
-	{
-		str_format(aBuf, sizeof(aBuf), "%s%d", GameServer()->GameType(), 64);
-		p.AddString(aBuf, 16);
-	}
-	else
-		p.AddString(GameServer()->GameType(), 16);
+	
+	p.AddString(GameServer()->GameType(), 16);
 
 	// flags
 	int i = 0;
@@ -1230,7 +1208,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 		{
 			if (Skip-- > 0)
 				continue;
-			if (--Take < 0)
+			if (--Take < 0) 
 				break;
 
 			p.AddString(ClientName(i), MAX_NAME_LENGTH); // client name

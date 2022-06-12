@@ -6,6 +6,7 @@
 #include <base/system.h>
 
 #include <engine/storage.h>
+#include <engine/server.h>
 #include <engine/shared/protocol.h>
 
 #include "config.h"

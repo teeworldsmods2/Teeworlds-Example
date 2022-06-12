@@ -56,7 +56,7 @@ class CGameContext : public IGameServer
 	CNetObjHandler m_NetObjHandler;
 	CTuningParams m_Tuning;
 
-	static void ConsoleOutputCallback_Chat(const char *pStr, void *pUser);
+	static void ConsoleOutputCallback_Chat(const char *pLine, void *pUser);
 
 	static void ConLanguage(IConsole::IResult *pResult, void *pUserData);
 	static void ConAbout(IConsole::IResult *pResult, void *pUserData);
@@ -85,9 +85,9 @@ class CGameContext : public IGameServer
 
 	bool m_Resetting;
 
-	int m_ConsoleOutputHandle_ChatPrint;
-	int m_ConsoleOutput_Target;
-
+public:
+	int m_ChatResponseTargetID;
+	int m_ChatPrintCBIndex;
 public:
 	int m_ZoneHandle_TeeWorlds;
 
