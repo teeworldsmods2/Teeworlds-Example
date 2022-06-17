@@ -316,15 +316,15 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 		if(Team == TEAM_SPECTATORS)
 		{
 			GameServer()->SendChatTarget(-1, _("'{str:Player}' joined the spectators"),"Player", Server()->ClientName(m_ClientID));
-		}else if(Team == TEAM_RED)
+		}else if(Team == TEAM_RED && GameServer()->m_pController->IsTeamplay())
 		{
 			GameServer()->SendChatTarget(-1, _("'{str:Player}' joined the redteam"),"Player", Server()->ClientName(m_ClientID));
-		}else if(Team == TEAM_BLUE)
+		}else if(Team == TEAM_BLUE && GameServer()->m_pController->IsTeamplay())
 		{
-			GameServer()->SendChatTarget(-1, _("'{str:P}' joined the blueteam"),"Player", Server()->ClientName(m_ClientID));
+			GameServer()->SendChatTarget(-1, _("'{str:Player}' joined the blueteam"),"Player", Server()->ClientName(m_ClientID));
 		}else
 		{
-			GameServer()->SendChatTarget(-1, _("'{str:P}' joined the game"),"Player", Server()->ClientName(m_ClientID));
+			GameServer()->SendChatTarget(-1, _("'{str:Player}' joined the game"),"Player", Server()->ClientName(m_ClientID));
 		}
 	}
 
