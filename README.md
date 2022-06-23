@@ -27,7 +27,7 @@ Features:
 - Add iculib (ErrorDreemurr)
 - Localization for vanilla system chat (ErrorDreemurr)
 - Enity Bug fix (ErrorDreemurr)
-- Switch languages command bug fix (ErrorDreemurr)
+- Change languages command bug fix (ErrorDreemurr)
 - Chat command update (WIP)
 
 tw06mod-localization branch
