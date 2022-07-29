@@ -14,27 +14,34 @@ void CNetConnection::ResetStats()
 	mem_zero(&m_Stats, sizeof(m_Stats));
 }
 
-void CNetConnection::Reset()
+void CNetConnection::Reset(bool Rejoin)
 {
 	m_Sequence = 0;
 	m_Ack = 0;
 	m_PeerAck = 0;
 	m_RemoteClosed = 0;
 
-	m_State = NET_CONNSTATE_OFFLINE;
+	if (!Rejoin)
+	{
+		m_TimeoutProtected = false;
+		m_TimeoutSituation = false;
+
+		m_State = NET_CONNSTATE_OFFLINE;
+		m_Token = -1;
+		m_SecurityToken = NET_SECURITY_TOKEN_UNKNOWN;
+	}
+
 	m_LastSendTime = 0;
 	m_LastRecvTime = 0;
-	m_LastUpdateTime = 0;
-	m_Token = -1;
+	//m_LastUpdateTime = 0;
+
+	//mem_zero(&m_PeerAddr, sizeof(m_PeerAddr));
 	m_UnknownSeq = false;
-	m_SecurityToken = NET_SECURITY_TOKEN_UNKNOWN;
-	mem_zero(&m_PeerAddr, sizeof(m_PeerAddr));
 
 	m_Buffer.Init();
 
 	mem_zero(&m_Construct, sizeof(m_Construct));
 }
-
 const char *CNetConnection::ErrorString()
 {
 	return m_ErrorString;
