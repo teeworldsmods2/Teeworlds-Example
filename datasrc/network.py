@@ -340,5 +340,6 @@ Messages = [
 		NetStringStrict("m_Value"),
 		NetStringStrict("m_Reason"),
 	]),
+	NetMessage("Cl_IsDDNet", []),
 	NetMessage("Cl_IsDDRace64", []),
 ]
