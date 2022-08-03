@@ -97,8 +97,8 @@
             "value": "'{str:Player}' 提议踢出你"
         },
         {
-            "key": "'{str:P1}' called for vote to kick '{str:P2}' ({str:R})",
-            "value": "'{str:P1}' 提议踢出 '{str:P2}' ({str:R})"
+            "key": "'{str:Player1}' called for vote to kick '{str:Player2}' ({str:R})",
+            "value": "'{str:Player1}' 提议踢出 '{str:Player2}' ({str:R})"
         },
         {
             "key": "Server does not allow voting to move players to spectators",
@@ -113,8 +113,8 @@
             "value": "你不能移动你自己"
         },
         {
-            "key": "'{str:P1}' called for vote to move '{str:P2}' to spectators ({str:R})",
-            "value": "'{str:P1}' 提议将 '{str:P2}' 移到旁观 ({str:R})"
+            "key": "'{str:Player1}' called for vote to move '{str:Player2}' to spectators ({str:R})",
+            "value": "'{str:Player1}' 提议将 '{str:Player2}' 移到旁观 ({str:R})"
         },
         {
             "key": "Teams are locked",
@@ -149,20 +149,20 @@
             "value": "'{str:Old}' 改名叫 '{str:New}'"
         },
         {
-            "key": "'{str:P}' joined the spectators",
-            "value": "'{str:P}' 加入了旁观"
+            "key": "'{str:Player}' joined the spectators",
+            "value": "'{str:Player}' 加入了旁观"
         },
         {
-            "key": "'{str:P}' joined the blueteam",
-            "value": "'{str:P}' 加入了蓝队"
+            "key": "'{str:Player}' joined the blueteam",
+            "value": "'{str:Player}' 加入了蓝队"
         },
         {
-            "key": "'{str:P}' joined the redteam",
-            "value": "'{str:P}' 加入了红队"
+            "key": "'{str:Player}' joined the redteam",
+            "value": "'{str:Player}' 加入了红队"
         },
         {
-            "key": "'{str:P}' joined the game",
-            "value": "'{str:P}' 加入了游戏"
+            "key": "'{str:Player}' joined the game",
+            "value": "'{str:Player}' 加入了游戏"
         }
     ]
 }

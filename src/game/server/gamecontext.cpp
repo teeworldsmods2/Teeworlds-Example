@@ -222,6 +222,16 @@ void CGameContext::CreateSoundGlobal(int Sound, int Target)
 	}
 }
 
+void CGameContext::SendMotd(int To, const char* pText)
+{
+	if(m_apPlayers[To])
+	{
+		CNetMsg_Sv_Motd Msg;
+		
+		Msg.m_pMessage = pText;
+		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, To);
+	}
+}
 
 void CGameContext::SendChatTarget(int To, const char *pText, ...)
 {
@@ -776,7 +786,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					{
 						str_format(aChatmsg, sizeof(aChatmsg), "'%s' called vote to change server option '%s' (%s)", Server()->ClientName(ClientID),
 									pOption->m_aDescription, pReason);
-						SendChatTarget(-1, _("'{str:PlayerName}' called vote to change server option '{str:Option}' (str:Reason)"), "PlayerName",
+						SendChatTarget(-1, _("'{str:PlayerName}' called vote to change server option '{str:Option}' ({str:Reason})"), "PlayerName",
 									Server()->ClientName(ClientID), "Option", pOption->m_aDescription,
 									"Reason", pReason );
 						m_ChatTarget = true;
@@ -1599,9 +1609,7 @@ void CGameContext::ConLanguage(IConsole::IResult *pResult, void *pUserData)
 	{
 		const char* pLanguage = pSelf->m_apPlayers[ClientID]->GetLanguage();
 		const char* pTxtUnknownLanguage = pSelf->Server()->Localization()->Localize(pLanguage, _("Unknown language or no input language code"));
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "language", pTxtUnknownLanguage);	
-		
-		pSelf->SendChatTarget(ClientID, pTxtUnknownLanguage);
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "language", pTxtUnknownLanguage);
 
 		dynamic_string BufferList;
 		int BufferIter = 0;
@@ -1615,9 +1623,7 @@ void CGameContext::ConLanguage(IConsole::IResult *pResult, void *pUserData)
 		dynamic_string Buffer;
 		pSelf->Server()->Localization()->Format_L(Buffer, pLanguage, _("Available languages: {str:ListOfLanguage}"), "ListOfLanguage", BufferList.buffer(), NULL);
 		
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "language", Buffer.buffer());
-
-		pSelf->SendChatTarget(ClientID, Buffer.buffer());
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_CHAT, "language", Buffer.buffer());
 	}
 	
 	return;
@@ -1663,7 +1669,7 @@ void CGameContext::OnConsoleInit()
 	m_pServer = Kernel()->RequestInterface<IServer>();
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
 
-	m_ChatPrintCBIndex = Console()->RegisterPrintCallback(IConsole::OUTPUT_LEVEL_STANDARD, ConsoleOutputCallback_Chat, this);
+	m_ChatPrintCBIndex = Console()->RegisterPrintCallback(IConsole::OUTPUT_LEVEL_CHAT, ConsoleOutputCallback_Chat, this);
 	
 	Console()->Register("tune", "si", CFGFLAG_SERVER, ConTuneParam, this, "Tune variable to value");
 	Console()->Register("tune_reset", "", CFGFLAG_SERVER, ConTuneReset, this, "Reset tuning");
@@ -1751,22 +1757,22 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 				switch(Index - ENTITY_OFFSET)
 				{
 					case ENTITY_SPAWN:
-						m_pController->OnEntity("twSpawn", Pivot, P0, P1, P2, P3, -1);
+						m_pController->OnEntity("Spawn", Pivot, P0, P1, P2, P3, -1);
 						break;
 					case ENTITY_SPAWN_RED:
-						m_pController->OnEntity("twSpawnRed", Pivot, P0, P1, P2, P3, -1);
+						m_pController->OnEntity("SpawnRed", Pivot, P0, P1, P2, P3, -1);
 						break;
 					case ENTITY_SPAWN_BLUE:
-						m_pController->OnEntity("twSpawnBlue", Pivot, P0, P1, P2, P3, -1);
+						m_pController->OnEntity("SpawnBlue", Pivot, P0, P1, P2, P3, -1);
 						break;
 					case ENTITY_FLAGSTAND_RED:
-						m_pController->OnEntity("twFlagStandRed", Pivot, P0, P1, P2, P3, -1);
+						m_pController->OnEntity("FlagStandRed", Pivot, P0, P1, P2, P3, -1);
 						break;
 					case ENTITY_FLAGSTAND_BLUE:
-						m_pController->OnEntity("twFlagStandBlue", Pivot, P0, P1, P2, P3, -1);
+						m_pController->OnEntity("FlagStandBlue", Pivot, P0, P1, P2, P3, -1);
 						break;
 					case ENTITY_ARMOR_1:
-						m_pController->OnEntity("twArmor", Pivot, P0, P1, P2, P3, -1);
+						m_pController->OnEntity("Armor", Pivot, P0, P1, P2, P3, -1);
 						break;
 					case ENTITY_HEALTH_1:
 						m_pController->OnEntity("twHealth", Pivot, P0, P1, P2, P3, -1);
@@ -1775,13 +1781,13 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 						m_pController->OnEntity("twShotgun", Pivot, P0, P1, P2, P3, -1);
 						break;
 					case ENTITY_WEAPON_GRENADE:
-						m_pController->OnEntity("twGrenade", Pivot, P0, P1, P2, P3, -1);
+						m_pController->OnEntity("Grenade", Pivot, P0, P1, P2, P3, -1);
 						break;
 					case ENTITY_POWERUP_NINJA:
-						m_pController->OnEntity("twNinja", Pivot, P0, P1, P2, P3, -1);
+						m_pController->OnEntity("Ninja", Pivot, P0, P1, P2, P3, -1);
 						break;
 					case ENTITY_WEAPON_RIFLE:
-						m_pController->OnEntity("twRifle", Pivot, P0, P1, P2, P3, -1);
+						m_pController->OnEntity("Rifle", Pivot, P0, P1, P2, P3, -1);
 						break;
 				}
 			}

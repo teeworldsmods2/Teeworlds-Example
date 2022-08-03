@@ -6,8 +6,8 @@
 			"name": "english"
 		},
 		{
-			"file": "cn",
-			"name": "Chinese",
+			"file": "zh",
+			"name": "简体中文",
 			"parent": "en"
 		}
 	]

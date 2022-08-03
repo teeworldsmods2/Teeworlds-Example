@@ -132,32 +132,32 @@ bool IGameController::OnEntity(const char* pName, vec2 Pivot, vec2 P0, vec2 P1, 
 	int Type = -1;
 	int SubType = 0;
 
-	if(str_comp(pName, "twSpawn") == 0)
+	if(str_comp(pName, "Spawn") == 0)
 		m_aaSpawnPoints[0][m_aNumSpawnPoints[0]++] = Pos;
-	else if(str_comp(pName, "twSpawnRed") == 0)
+	else if(str_comp(pName, "SpawnRed") == 0)
 		m_aaSpawnPoints[1][m_aNumSpawnPoints[1]++] = Pos;
-	else if(str_comp(pName, "twSpawnBlue") == 0)
+	else if(str_comp(pName, "SpawnBlue") == 0)
 		m_aaSpawnPoints[2][m_aNumSpawnPoints[2]++] = Pos;
-	else if(str_comp(pName, "twArmor") == 0)
+	else if(str_comp(pName, "Armor") == 0)
 		Type = POWERUP_ARMOR;
-	else if(str_comp(pName, "twHealth") == 0)
+	else if(str_comp(pName, "Health") == 0)
 		Type = POWERUP_HEALTH;
-	else if(str_comp(pName, "twShotgun") == 0)
+	else if(str_comp(pName, "Shotgun") == 0)
 	{
 		Type = POWERUP_WEAPON;
 		SubType = WEAPON_SHOTGUN;
 	}
-	else if(str_comp(pName, "twGrenade") == 0)
+	else if(str_comp(pName, "Grenade") == 0)
 	{
 		Type = POWERUP_WEAPON;
 		SubType = WEAPON_GRENADE;
 	}
-	else if(str_comp(pName, "twRifle") == 0)
+	else if(str_comp(pName, "Rifle") == 0)
 	{
 		Type = POWERUP_WEAPON;
 		SubType = WEAPON_RIFLE;
 	}
-	else if(str_comp(pName, "twNinja") == 0 && g_Config.m_SvPowerups)
+	else if(str_comp(pName, "Ninja") == 0 && g_Config.m_SvPowerups)
 	{
 		Type = POWERUP_NINJA;
 		SubType = WEAPON_NINJA;
