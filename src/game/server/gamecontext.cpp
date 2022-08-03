@@ -1771,10 +1771,10 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 					case ENTITY_FLAGSTAND_BLUE:
 						m_pController->OnEntity("buleFlag", Pivot, P0, P1, P2, P3, -1);
 						break;
-					case ENTITY_ARMOR_1:
+					case ENTITY_ARMOR:
 						m_pController->OnEntity("armor", Pivot, P0, P1, P2, P3, -1);
 						break;
-					case ENTITY_HEALTH_1:
+					case ENTITY_HEALTH:
 						m_pController->OnEntity("health", Pivot, P0, P1, P2, P3, -1);
 						break;
 					case ENTITY_WEAPON_SHOTGUN:
