@@ -13,8 +13,8 @@
             "value": "可用语言: {str:ListOfLanguage}"
         },
         {
-            "key": "'{str:PlayerName}' entered and joined the {str:Team}",
-            "value": "'{str:PlayerName}' 进入服务器并加入 {str:Team}"
+            "key": "'{str:PlayerName}' entered and joined the game",
+            "value": "'{str:PlayerName}' 进入服务器并加入游戏"
         },
         {
             "key": "'{str:PlayerName}' has left the game ({str:Reason})",
