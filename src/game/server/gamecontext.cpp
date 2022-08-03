@@ -1757,37 +1757,37 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 				switch(Index - ENTITY_OFFSET)
 				{
 					case ENTITY_SPAWN:
-						m_pController->OnEntity("Spawn", Pivot, P0, P1, P2, P3, -1);
+						m_pController->OnEntity("spawn", Pivot, P0, P1, P2, P3, -1);
 						break;
 					case ENTITY_SPAWN_RED:
-						m_pController->OnEntity("SpawnRed", Pivot, P0, P1, P2, P3, -1);
+						m_pController->OnEntity("redSpawn", Pivot, P0, P1, P2, P3, -1);
 						break;
 					case ENTITY_SPAWN_BLUE:
-						m_pController->OnEntity("SpawnBlue", Pivot, P0, P1, P2, P3, -1);
+						m_pController->OnEntity("buleSpawn", Pivot, P0, P1, P2, P3, -1);
 						break;
 					case ENTITY_FLAGSTAND_RED:
-						m_pController->OnEntity("FlagStandRed", Pivot, P0, P1, P2, P3, -1);
+						m_pController->OnEntity("redFlag", Pivot, P0, P1, P2, P3, -1);
 						break;
 					case ENTITY_FLAGSTAND_BLUE:
-						m_pController->OnEntity("FlagStandBlue", Pivot, P0, P1, P2, P3, -1);
+						m_pController->OnEntity("buleFlag", Pivot, P0, P1, P2, P3, -1);
 						break;
 					case ENTITY_ARMOR_1:
-						m_pController->OnEntity("Armor", Pivot, P0, P1, P2, P3, -1);
+						m_pController->OnEntity("armor", Pivot, P0, P1, P2, P3, -1);
 						break;
 					case ENTITY_HEALTH_1:
-						m_pController->OnEntity("twHealth", Pivot, P0, P1, P2, P3, -1);
+						m_pController->OnEntity("health", Pivot, P0, P1, P2, P3, -1);
 						break;
 					case ENTITY_WEAPON_SHOTGUN:
-						m_pController->OnEntity("twShotgun", Pivot, P0, P1, P2, P3, -1);
+						m_pController->OnEntity("shotgun", Pivot, P0, P1, P2, P3, -1);
 						break;
 					case ENTITY_WEAPON_GRENADE:
-						m_pController->OnEntity("Grenade", Pivot, P0, P1, P2, P3, -1);
+						m_pController->OnEntity("grenade", Pivot, P0, P1, P2, P3, -1);
 						break;
 					case ENTITY_POWERUP_NINJA:
-						m_pController->OnEntity("Ninja", Pivot, P0, P1, P2, P3, -1);
+						m_pController->OnEntity("ninja", Pivot, P0, P1, P2, P3, -1);
 						break;
 					case ENTITY_WEAPON_RIFLE:
-						m_pController->OnEntity("Rifle", Pivot, P0, P1, P2, P3, -1);
+						m_pController->OnEntity("rifle", Pivot, P0, P1, P2, P3, -1);
 						break;
 				}
 			}
