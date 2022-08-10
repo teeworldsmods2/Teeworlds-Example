@@ -65,8 +65,8 @@
             "value": "你必须等待 {str:Time} 秒才能再次提出另一个投票"
         },
         {
-            "key": "'{str:PlayerName}' called vote to change server option '{str:Option}' (str:Reason)",
-            "value": "'{str:PlayerName}' 提议修改服务器设置 '{str:Option}' (str:Reason)"
+            "key": "'{str:PlayerName}' called vote to change server option '{str:Option}' ({str:Reason})",
+            "value": "'{str:PlayerName}' 提议修改服务器设置 '{str:Option}' ({str:Reason})"
         },
         {
             "key": "'{str:Option}' isn't an option on this server",
