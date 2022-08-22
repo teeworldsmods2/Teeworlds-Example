@@ -765,8 +765,9 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			if(pPlayer->m_LastVoteCall && Timeleft > 0)
 			{
 				char aChatmsg[512] = {0};
-				str_format(aChatmsg, sizeof(aChatmsg), _("You must wait %d seconds before making another vote"), (Timeleft/Server()->TickSpeed())+1);
-				SendChatTarget(ClientID, _("You must wait {str:Time} seconds before making another vote"), "Time", (Timeleft/Server()->TickSpeed())+1);
+				int Seconds = (Timeleft/Server()->TickSpeed())+1;
+				str_format(aChatmsg, sizeof(aChatmsg), _("You must wait %d seconds before making another vote"), Seconds);
+				SendChatTarget(ClientID, _("You must wait {int}:Time} seconds before making another vote"), "Time", &Seconds, NULL);
 				return;
 			}
 
@@ -788,7 +789,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 									pOption->m_aDescription, pReason);
 						SendChatTarget(-1, _("'{str:PlayerName}' called vote to change server option '{str:Option}' ({str:Reason})"), "PlayerName",
 									Server()->ClientName(ClientID), "Option", pOption->m_aDescription,
-									"Reason", pReason );
+									"Reason", pReason, NULL);
 						m_ChatTarget = true;
 						str_format(aDesc, sizeof(aDesc), "%s", pOption->m_aDescription);
 						str_format(aCmd, sizeof(aCmd), "%s", pOption->m_aCommand);

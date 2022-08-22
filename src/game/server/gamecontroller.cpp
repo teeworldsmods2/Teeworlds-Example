@@ -142,7 +142,7 @@ bool IGameController::OnEntity(const char* pName, vec2 Pivot, vec2 P0, vec2 P1, 
 		Type = POWERUP_ARMOR;
 	else if(str_comp(pName, "health") == 0)
 		Type = POWERUP_HEALTH;
-	else if(str_comp(pName, "Shotgun") == 0)
+	else if(str_comp(pName, "shotgun") == 0)
 	{
 		Type = POWERUP_WEAPON;
 		SubType = WEAPON_SHOTGUN;
