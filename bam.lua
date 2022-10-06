@@ -1,8 +1,6 @@
 CheckVersion("0.5")
 
 Import("configure.lua")
-Import("other/sdl/sdl.lua")
-Import("other/freetype/freetype.lua")
 
 --- Setup Config -------
 config = NewConfig()
@@ -11,13 +9,11 @@ config:Add(OptTestCompileC("stackprotector", "int main(){return 0;}", "-fstack-p
 config:Add(OptTestCompileC("minmacosxsdk", "int main(){return 0;}", "-mmacosx-version-min=10.7 -isysroot /Developer/SDKs/MacOSX10.7.sdk"))
 config:Add(OptTestCompileC("buildwithoutsseflag", "#include <immintrin.h>\nint main(){_mm_pause();return 0;}", ""))
 config:Add(OptLibrary("zlib", "zlib.h", false))
-config:Add(SDL.OptFind("sdl", true))
-config:Add(FreeType.OptFind("freetype", true))
 config:Finalize("config.lua")
 
 generated_src_dir = "build/src"
 generated_icon_dir = "build/icons"
-builddir = "build/%(arch)s/%(conf)s"
+builddir = "build/"
 content_src_dir = "datasrc/"
 
 python_in_path = ExecuteSilent("python -V") == 0
@@ -100,12 +96,10 @@ function GenerateCommonSettings(settings, conf, arch, compiler)
 	end
 
 	local md5 = Compile(settings, Collect("src/engine/external/md5/*.c"))
-	local wavpack = Compile(settings, Collect("src/engine/external/wavpack/*.c"))
-	local png = Compile(settings, Collect("src/engine/external/pnglite/*.c"))
 	local json = Compile(settings, Collect("src/engine/external/json-parser/*.c"))
 
 	-- globally available libs
-	libs = {zlib=zlib, wavpack=wavpack, png=png, md5=md5, json=json}
+	libs = {zlib=zlib, md5=md5, json=json}
 end
 
 function GenerateMacOSXSettings(settings, conf, arch, compiler)
@@ -153,21 +147,13 @@ function GenerateMacOSXSettings(settings, conf, arch, compiler)
 	BuildVersionserver(settings)
 	BuildTools(settings)
 
-	-- Add requirements for Server & Client
+	-- Add requirements for Server
 	BuildGameCommon(settings)
 
 	-- Server
 	settings.link.frameworks:Add("Cocoa")
 	local server_exe = BuildServer(settings)
 	AddDependency(server_exe, serverlaunch)
-
-	-- Client
-	settings.link.frameworks:Add("OpenGL")
-	settings.link.frameworks:Add("AGL")
-	-- FIXME: the SDL config is applied in BuildClient too but is needed here before so the launcher will compile
-	config.sdl:Apply(settings)
-	settings.link.extrafiles:Merge(Compile(settings, "src/osxlaunch/client.m"))
-	BuildClient(settings)
 
 	-- Content
 	BuildContent(settings, arch, conf)
@@ -199,16 +185,11 @@ function GenerateLinuxSettings(settings, conf, arch, compiler)
 	BuildMasterserver(settings)
 	BuildVersionserver(settings)
 
-	-- Add requirements for Server & Client
+	-- Add requirements for Server
 	BuildGameCommon(settings)
 
 	-- Server
 	BuildServer(settings)
-
-	-- Client
-	settings.link.libs:Add("X11")
-	settings.link.libs:Add("GL")
-	BuildClient(settings)
 
 	-- Content
 	BuildContent(settings, arch, conf)
@@ -263,21 +244,13 @@ function GenerateWindowsSettings(settings, conf, target_arch, compiler)
 	BuildVersionserver(settings)
 	BuildTools(settings)
 
-	-- Add requirements for Server & Client
+	-- Add requirements for Server
 	BuildGameCommon(settings)
 
 	-- Server
 	local server_settings = settings:Copy()
 	server_settings.link.extrafiles:Add(icons.server)
 	BuildServer(server_settings)
-
-	-- Client
-	settings.link.extrafiles:Add(icons.client)
-	settings.link.extrafiles:Add(manifests.client)
-	settings.link.libs:Add("opengl32")
-	settings.link.libs:Add("winmm")
-	settings.link.libs:Add("imm32")
-	BuildClient(settings)
 
 	-- Content
 	BuildContent(settings, target_arch, conf)
@@ -311,19 +284,6 @@ function SharedServerFiles()
 	return shared_server_files
 end
 
-function SharedClientFiles()
-	-- Shared client files, generate only once
-
-	if not shared_client_files then
-		local client_content_source = ContentCompile("client_content_source", "generated/client_data.cpp")
-		local client_content_header = ContentCompile("client_content_header", "generated/client_data.h")
-		AddDependency(client_content_source, client_content_header)
-		shared_client_files = {client_content_source}
-	end
-
-	return shared_client_files
-end
-
 shared_icons = {}
 function SharedIcons(compiler)
 	if not shared_icons[compiler] then
@@ -348,19 +308,6 @@ end
 
 function BuildGameCommon(settings)
 	settings.link.extrafiles:Merge(Compile(settings, Collect("src/game/*.cpp"), SharedCommonFiles()))
-end
-
-
-function BuildClient(settings, family, platform)
-	config.sdl:Apply(settings)
-	config.freetype:Apply(settings)
-	
-	local client = Compile(settings, Collect("src/engine/client/*.cpp"))
-	
-	local game_client = Compile(settings, CollectRecursive("src/game/client/*.cpp"), SharedClientFiles())
-	local game_editor = Compile(settings, Collect("src/game/editor/*.cpp"))
-	
-	Link(settings, "teeworlds", libs["zlib"], libs["md5"], libs["wavpack"], libs["png"], libs["json"], client, game_client, game_editor)
 end
 
 function BuildServer(settings, family, platform)
@@ -390,7 +337,7 @@ end
 
 function BuildContent(settings, arch, conf)
 	local content = {}
-	table.insert(content, CopyToDir(settings.link.Output(settings, "data"), CollectRecursive(content_src_dir .. "*.png", content_src_dir .. "*.wv", content_src_dir .. "*.ttc", content_src_dir .. "*.ttf", content_src_dir .. "*.txt", content_src_dir .. "*.map", content_src_dir .. "*.rules", content_src_dir .. "*.json")))
+	table.insert(content, CopyToDir(settings.link.Output(builddir, "data"), CollectRecursive(content_src_dir .. "*.png", content_src_dir .. "*.wv", content_src_dir .. "*.ttc", content_src_dir .. "*.ttf", content_src_dir .. "*.txt", content_src_dir .. "*.map", content_src_dir .. "*.rules", content_src_dir .. "*.json")))
 	if family == "windows" then
 		if arch == "x86_64" then
 			_arch = "64"
@@ -453,7 +400,7 @@ function GenerateSettings(conf, arch, builddir, compiler, headless)
 	
 	-- Build output files in {builddir}
 	settings.link.Output = function (settings_, input)
-		return PathJoin(builddir, PathBase(input) .. settings_.config_ext)
+		return PathJoin(builddir, PathBase(input))
 	end
 	
 	settings.cc.includes:Add("src")
@@ -556,5 +503,5 @@ for cur_name, cur_target in pairs(targets) do
 	PseudoTarget(cur_name, subtargets[cur_target])
 end
 
-PseudoTarget("game", "client", "server", "content")
+PseudoTarget("game", "server", "content")
 DefaultTarget("game")

@@ -42,31 +42,20 @@ def EmitFlags(names, num):
 
 gen_network_header = False
 gen_network_source = False
-gen_client_content_header = False
-gen_client_content_source = False
 gen_server_content_header = False
 gen_server_content_source = False
 
 if "network_header" in sys.argv: gen_network_header = True
 if "network_source" in sys.argv: gen_network_source = True
-if "client_content_header" in sys.argv: gen_client_content_header = True
-if "client_content_source" in sys.argv: gen_client_content_source = True
 if "server_content_header" in sys.argv: gen_server_content_header = True
 if "server_content_source" in sys.argv: gen_server_content_source = True
-
-if gen_client_content_header:
-	print("#ifndef CLIENT_CONTENT_HEADER")
-	print("#define CLIENT_CONTENT_HEADER")
 
 if gen_server_content_header:
 	print("#ifndef SERVER_CONTENT_HEADER")
 	print("#define SERVER_CONTENT_HEADER")
 
 
-if gen_client_content_header or gen_server_content_header:
-	# print some includes
-	print('#include <engine/graphics.h>')
-	print('#include <engine/sound.h>')
+if gen_server_content_header:
 
 	# emit the type declarations
 	contentlines = open("datasrc/content.py", "rb").readlines()
@@ -86,9 +75,7 @@ if gen_client_content_header or gen_server_content_header:
 	EmitEnum(["ANIM_%s"%i.name.value.upper() for i in content.container.animations.items], "NUM_ANIMS")
 	EmitEnum(["SPRITE_%s"%i.name.value.upper() for i in content.container.sprites.items], "NUM_SPRITES")
 
-if gen_client_content_source or gen_server_content_source:
-	if gen_client_content_source:
-		print('#include "client_data.h"')
+if gen_server_content_source:
 	if gen_server_content_source:
 		print('#include "server_data.h"')
 	EmitDefinition(content.container, "datacontainer")
@@ -336,5 +323,5 @@ if gen_network_source:
 	for l in lines:
 		print(l)
 
-if gen_client_content_header or gen_server_content_header:
+if gen_server_content_header:
 	print("#endif")
