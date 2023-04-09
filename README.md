@@ -1,4 +1,4 @@
-==== Teeworlds Frame ====
+## Teeworlds Frame ##
 Check branches for more.
 
 This branch is Origin Teeworlds
@@ -9,7 +9,7 @@ This branch is Origin Teeworlds
 [![Stargazers over time](https://starchart.cc/teeworldsmods2/teeworlds-frame.svg)](https://starchart.cc/teeworldsmods2/teeworlds-frame)
 
 
-==== Origin Teeworlds README ====
+## Origin Teeworlds README ##
 Copyright (c) 2016 Magnus Auvinen
 
 
