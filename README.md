@@ -3,10 +3,11 @@ Check branches for more.
 
 This branch is Origin Teeworlds
 
+### If using this example, please indicate the origin link of it ###
 
 ## Stargazers over time
 
-[![Stargazers over time](https://starchart.cc/teeworldsmods2/teeworlds-frame.svg)](https://starchart.cc/teeworldsmods2/teeworlds-frame)
+[![Stargazers over time](https://starchart.cc/teeworldsmods2/Teeworlds-Example.svg)](https://starchart.cc/teeworldsmods2/Teeworlds-Example)
 
 
 ## Origin Teeworlds README ##
