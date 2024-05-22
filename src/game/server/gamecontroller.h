@@ -48,31 +48,14 @@ protected:
 
 	int m_RoundStartTick;
 	int m_GameOverTick;
-	int m_SuddenDeath;
-
-	int m_aTeamscore[2];
-
-	int m_Warmup;
-	int m_UnpauseTimer;
-	int m_RoundCount;
 
 	int m_GameFlags;
-	int m_UnbalancedTick;
-	bool m_ForceBalanced;
 
 public:
 	const char *m_pGameType;
 
-	bool IsTeamplay() const;
-	bool IsGameOver() const { return m_GameOverTick != -1; }
-
 	CGameController(class CGameContext *pGameServer);
 	virtual ~CGameController();
-
-	virtual void DoWincheck();
-
-	void DoWarmup(int Seconds);
-	void TogglePause();
 
 	void StartRound();
 	void EndRound();
@@ -80,12 +63,9 @@ public:
 
 	bool IsFriendlyFire(int ClientID1, int ClientID2);
 
-	bool IsForceBalanced();
-
 	/*
 
 	*/
-	virtual bool CanBeMovedOnBalance(int ClientID);
 
 	virtual void Tick();
 
@@ -137,7 +117,6 @@ public:
 	virtual const char *GetTeamName(int Team);
 	virtual int GetAutoTeam(int NotThisID);
 	virtual bool CanJoinTeam(int Team, int NotThisID);
-	bool CheckTeamBalance();
 	bool CanChangeTeam(CPlayer *pPplayer, int JoinTeam);
 	int ClampTeam(int Team);
 

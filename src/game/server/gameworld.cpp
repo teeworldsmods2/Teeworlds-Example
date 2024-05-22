@@ -125,7 +125,7 @@ void CGameWorld::Reset()
 		}
 	RemoveEntities();
 
-	GameServer()->m_pController->PostReset();
+	GameServer()->GameController()->PostReset();
 	RemoveEntities();
 
 	m_ResetRequested = false;
@@ -154,8 +154,6 @@ void CGameWorld::Tick()
 
 	if (!m_Paused)
 	{
-		if (GameServer()->m_pController->IsForceBalanced())
-			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "Teams have been balanced");
 		// update all objects
 		for (int i = 0; i < NUM_ENTTYPES; i++)
 			for (CEntity *pEnt = m_apFirstEntityTypes[i]; pEnt;)
@@ -224,7 +222,7 @@ CCharacter *CGameWorld::ClosestCharacter(vec2 Pos, float Radius, CEntity *pNotTh
 	float ClosestRange = Radius * 2;
 	CCharacter *pClosest = 0;
 
-	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
+	CCharacter *p = (CCharacter *)FindFirst(ENTTYPE_CHARACTER);
 	for (; p; p = (CCharacter *)p->TypeNext())
 	{
 		if (p == pNotThis)

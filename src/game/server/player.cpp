@@ -16,7 +16,7 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	m_ScoreStartTick = Server()->Tick();
 	m_pCharacter = 0;
 	m_ClientID = ClientID;
-	m_Team = GameServer()->m_pController->ClampTeam(Team);
+	m_Team = GameServer()->GameController()->ClampTeam(Team);
 	m_SpectatorID = SPEC_FREEVIEW;
 	m_LastActionTick = Server()->Tick();
 	m_TeamChangeTick = Server()->Tick();
@@ -63,7 +63,7 @@ void CPlayer::Tick()
 		}
 	}
 
-	if (!GameServer()->m_World.m_Paused)
+	if (!GameServer()->GameWorld()->m_Paused)
 	{
 		if (!m_pCharacter && m_Team == TEAM_SPECTATORS && m_SpectatorID == SPEC_FREEVIEW)
 			m_ViewPos -= vec2(clamp(m_ViewPos.x - m_LatestActivity.m_TargetX, -500.0f, 500.0f), clamp(m_ViewPos.y - m_LatestActivity.m_TargetY, -400.0f, 400.0f));
@@ -247,14 +247,14 @@ void CPlayer::Respawn()
 void CPlayer::SetTeam(int Team, bool DoChatMsg)
 {
 	// clamp the team
-	Team = GameServer()->m_pController->ClampTeam(Team);
+	Team = GameServer()->GameController()->ClampTeam(Team);
 	if (m_Team == Team)
 		return;
 
 	char aBuf[512];
 	if (DoChatMsg)
 	{
-		str_format(aBuf, sizeof(aBuf), "'%s' joined the %s", Server()->ClientName(m_ClientID), GameServer()->m_pController->GetTeamName(Team));
+		str_format(aBuf, sizeof(aBuf), "'%s' joined the %s", Server()->ClientName(m_ClientID), GameServer()->GameController()->GetTeamName(Team));
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 	}
 
@@ -268,7 +268,7 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 	str_format(aBuf, sizeof(aBuf), "team_join player='%d:%s' m_Team=%d", m_ClientID, Server()->ClientName(m_ClientID), m_Team);
 	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
-	GameServer()->m_pController->OnPlayerInfoChange(GameServer()->m_apPlayers[m_ClientID]);
+	GameServer()->GameController()->OnPlayerInfoChange(GameServer()->m_apPlayers[m_ClientID]);
 
 	if (Team == TEAM_SPECTATORS)
 	{
@@ -285,11 +285,11 @@ void CPlayer::TryRespawn()
 {
 	vec2 SpawnPos;
 
-	if (!GameServer()->m_pController->CanSpawn(m_Team, &SpawnPos))
+	if (!GameServer()->GameController()->CanSpawn(m_Team, &SpawnPos))
 		return;
 
 	m_Spawning = false;
-	m_pCharacter = new (m_ClientID) CCharacter(&GameServer()->m_World);
+	m_pCharacter = new (m_ClientID) CCharacter(GameServer()->GameWorld());
 	m_pCharacter->Spawn(this, SpawnPos);
 	GameServer()->CreatePlayerSpawn(SpawnPos);
 }

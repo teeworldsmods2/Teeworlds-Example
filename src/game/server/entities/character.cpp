@@ -64,25 +64,25 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_Pos = Pos;
 
 	m_Core.Reset();
-	m_Core.Init(&GameServer()->m_World.m_Core, GameServer()->Collision());
+	m_Core.Init(&GameServer()->GameWorld()->m_Core, GameServer()->Collision());
 	m_Core.m_Pos = m_Pos;
-	GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCID()] = &m_Core;
+	GameServer()->GameWorld()->m_Core.m_apCharacters[m_pPlayer->GetCID()] = &m_Core;
 
 	m_ReckoningTick = 0;
 	mem_zero(&m_SendCore, sizeof(m_SendCore));
 	mem_zero(&m_ReckoningCore, sizeof(m_ReckoningCore));
 
-	GameServer()->m_World.InsertEntity(this);
+	GameServer()->GameWorld()->InsertEntity(this);
 	m_Alive = true;
 
-	GameServer()->m_pController->OnCharacterSpawn(this);
+	GameServer()->GameController()->OnCharacterSpawn(this);
 
 	return true;
 }
 
 void CCharacter::Destroy()
 {
-	GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCID()] = 0;
+	GameServer()->GameWorld()->m_Core.m_apCharacters[m_pPlayer->GetCID()] = 0;
 	m_Alive = false;
 }
 
@@ -151,7 +151,7 @@ void CCharacter::HandleNinja()
 			vec2 Dir = m_Pos - OldPos;
 			float Radius = m_ProximityRadius * 2.0f;
 			vec2 Center = OldPos + Dir * 0.5f;
-			int Num = GameServer()->m_World.FindEntities(Center, Radius, (CEntity **)aEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
+			int Num = GameServer()->GameWorld()->FindEntities(Center, Radius, (CEntity **)aEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
 
 			for (int i = 0; i < Num; ++i)
 			{
@@ -287,8 +287,8 @@ void CCharacter::FireWeapon()
 
 		CCharacter *apEnts[MAX_CLIENTS];
 		int Hits = 0;
-		int Num = GameServer()->m_World.FindEntities(ProjStartPos, m_ProximityRadius * 0.5f, (CEntity **)apEnts,
-													 MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
+		int Num = GameServer()->GameWorld()->FindEntities(ProjStartPos, m_ProximityRadius * 0.5f, (CEntity **)apEnts,
+														  MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
 
 		for (int i = 0; i < Num; ++i)
 		{
@@ -322,12 +322,12 @@ void CCharacter::FireWeapon()
 
 	case WEAPON_GUN:
 	{
-		CProjectile *pProj = new CProjectile(GameWorld(), WEAPON_GUN,
-											 m_pPlayer->GetCID(),
-											 ProjStartPos,
-											 Direction,
-											 (int)(Server()->TickSpeed() * GameServer()->Tuning()->m_GunLifetime),
-											 1, 0, 0, -1, WEAPON_GUN);
+		new CProjectile(GameWorld(), WEAPON_GUN,
+						m_pPlayer->GetCID(),
+						ProjStartPos,
+						Direction,
+						(int)(Server()->TickSpeed() * GameServer()->Tuning()->m_GunLifetime),
+						1, 0, 0, -1, WEAPON_GUN);
 
 		GameServer()->CreateSound(m_Pos, SOUND_GUN_FIRE);
 	}
@@ -344,12 +344,12 @@ void CCharacter::FireWeapon()
 			a += Spreading[i + 2];
 			float v = 1 - (absolute(i) / (float)ShotSpread);
 			float Speed = mix((float)GameServer()->Tuning()->m_ShotgunSpeeddiff, 1.0f, v);
-			CProjectile *pProj = new CProjectile(GameWorld(), WEAPON_SHOTGUN,
-												 m_pPlayer->GetCID(),
-												 ProjStartPos,
-												 vec2(cosf(a), sinf(a)) * Speed,
-												 (int)(Server()->TickSpeed() * GameServer()->Tuning()->m_ShotgunLifetime),
-												 1, 0, 0, -1, WEAPON_SHOTGUN);
+			new CProjectile(GameWorld(), WEAPON_SHOTGUN,
+							m_pPlayer->GetCID(),
+							ProjStartPos,
+							vec2(cosf(a), sinf(a)) * Speed,
+							(int)(Server()->TickSpeed() * GameServer()->Tuning()->m_ShotgunLifetime),
+							1, 0, 0, -1, WEAPON_SHOTGUN);
 		}
 
 		GameServer()->CreateSound(m_Pos, SOUND_SHOTGUN_FIRE);
@@ -358,12 +358,12 @@ void CCharacter::FireWeapon()
 
 	case WEAPON_GRENADE:
 	{
-		CProjectile *pProj = new CProjectile(GameWorld(), WEAPON_GRENADE,
-											 m_pPlayer->GetCID(),
-											 ProjStartPos,
-											 Direction,
-											 (int)(Server()->TickSpeed() * GameServer()->Tuning()->m_GrenadeLifetime),
-											 1, true, 0, SOUND_GRENADE_EXPLODE, WEAPON_GRENADE);
+		new CProjectile(GameWorld(), WEAPON_GRENADE,
+						m_pPlayer->GetCID(),
+						ProjStartPos,
+						Direction,
+						(int)(Server()->TickSpeed() * GameServer()->Tuning()->m_GrenadeLifetime),
+						1, true, 0, SOUND_GRENADE_EXPLODE, WEAPON_GRENADE);
 
 		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_FIRE);
 	}
@@ -519,7 +519,7 @@ void CCharacter::Tick()
 	if (m_pPlayer->m_ForceBalanced)
 	{
 		char Buf[128];
-		str_format(Buf, sizeof(Buf), "You were moved to %s due to team balancing", GameServer()->m_pController->GetTeamName(m_pPlayer->GetTeam()));
+		str_format(Buf, sizeof(Buf), "You were moved to %s due to team balancing", GameServer()->GameController()->GetTeamName(m_pPlayer->GetTeam()));
 		GameServer()->SendBroadcast(Buf, m_pPlayer->GetCID());
 
 		m_pPlayer->m_ForceBalanced = false;
@@ -666,7 +666,7 @@ void CCharacter::Die(int Killer, int Weapon)
 {
 	// we got to wait 0.5 secs before respawning
 	m_pPlayer->m_RespawnTick = Server()->Tick() + Server()->TickSpeed() / 2;
-	int ModeSpecial = GameServer()->m_pController->OnCharacterDeath(this, GameServer()->m_apPlayers[Killer], Weapon);
+	int ModeSpecial = GameServer()->GameController()->OnCharacterDeath(this, GameServer()->m_apPlayers[Killer], Weapon);
 
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "kill killer='%d:%s' victim='%d:%s' weapon=%d special=%d",
@@ -689,8 +689,8 @@ void CCharacter::Die(int Killer, int Weapon)
 	m_pPlayer->m_DieTick = Server()->Tick();
 
 	m_Alive = false;
-	GameServer()->m_World.RemoveEntity(this);
-	GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCID()] = 0;
+	GameServer()->GameWorld()->RemoveEntity(this);
+	GameServer()->GameWorld()->m_Core.m_apCharacters[m_pPlayer->GetCID()] = 0;
 	GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID());
 }
 
@@ -698,7 +698,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 {
 	m_Core.m_Vel += Force;
 
-	if (GameServer()->m_pController->IsFriendlyFire(m_pPlayer->GetCID(), From) && !g_Config.m_SvTeamdamage)
+	if (GameServer()->GameController()->IsFriendlyFire(m_pPlayer->GetCID(), From) && !g_Config.m_SvTeamdamage)
 		return false;
 
 	// m_pPlayer only inflicts half damage on self
@@ -798,7 +798,7 @@ void CCharacter::Snap(int SnappingClient)
 		return;
 
 	// write down the m_Core
-	if (!m_ReckoningTick || GameServer()->m_World.m_Paused)
+	if (!m_ReckoningTick || GameServer()->GameWorld()->m_Paused)
 	{
 		// no dead reckoning when paused because the client doesn't know
 		// how far to perform the reckoning
