@@ -173,6 +173,8 @@ function build(settings)
 	settings.cc.includes:Add("src")
 
 	if family == "unix" then
+		settings.cc.flags_cxx:Add("-fexceptions")
+		settings.link.libs:Add("mysqlcppconn")
 		if platform == "macosx" then
 			settings.cc.flags_cxx:Add("-stdlib=libc++")
 			settings.cc.includes:Add("/usr/local/opt/icu4c/include")

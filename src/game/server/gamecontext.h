@@ -17,6 +17,8 @@
 #include "gameworld.h"
 #include "player.h"
 
+#include "city/sql.h"
+
 /*
 	Tick
 		Game Context (CGameContext::tick)
@@ -48,6 +50,7 @@ class CGameContext : public IGameServer
 	CTuningParams m_Tuning;
 	CGameController *m_pController;
 	CGameWorld m_World;
+	CSQL *m_Sql;
 
 	static void ConsoleOutputCallback_Chat(const char *pStr, void *pUser);
 
@@ -84,6 +87,7 @@ public:
 	CTuningParams *Tuning() { return &m_Tuning; }
 	CGameController *GameController() { return m_pController; }
 	CGameWorld *GameWorld() { return &m_World; }
+	CSQL *Sql() const { return m_Sql; };
 
 	CGameContext();
 	~CGameContext();
