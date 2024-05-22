@@ -8,6 +8,7 @@ class CDataFileReader
 {
 	struct CDatafile *m_pDataFile;
 	void *GetDataImpl(int Index, int Swap);
+
 public:
 	CDataFileReader() : m_pDataFile(0) {}
 	~CDataFileReader() { Close(); }
@@ -63,9 +64,9 @@ class CDataFileWriter
 
 	enum
 	{
-		MAX_ITEM_TYPES=0xffff,
-		MAX_ITEMS=1024,
-		MAX_DATAS=1024,
+		MAX_ITEM_TYPES = 0xffff,
+		MAX_ITEMS = 1024,
+		MAX_DATAS = 1024,
 	};
 
 	IOHANDLE m_File;
@@ -85,6 +86,5 @@ public:
 	int AddItem(int Type, int ID, int Size, void *pData);
 	int Finish();
 };
-
 
 #endif

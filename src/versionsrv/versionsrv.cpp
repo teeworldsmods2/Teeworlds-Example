@@ -9,16 +9,18 @@
 #include "versionsrv.h"
 #include "mapversions.h"
 
-enum {
-	MAX_MAPS_PER_PACKET=48,
-	MAX_PACKETS=16,
-	MAX_MAPS=MAX_MAPS_PER_PACKET*MAX_PACKETS,
+enum
+{
+	MAX_MAPS_PER_PACKET = 48,
+	MAX_PACKETS = 16,
+	MAX_MAPS = MAX_MAPS_PER_PACKET * MAX_PACKETS,
 };
 
 struct CPacketData
 {
 	int m_Size;
-	struct {
+	struct
+	{
 		unsigned char m_aHeader[sizeof(VERSIONSRV_MAPLIST)];
 		CMapVersion m_aMaplist[MAX_MAPS_PER_PACKET];
 	} m_Data;
@@ -34,10 +36,10 @@ void BuildPackets()
 	CMapVersion *pCurrent = &s_aMapVersionList[0];
 	int ServersLeft = s_NumMapVersionItems;
 	m_NumPackets = 0;
-	while(ServersLeft && m_NumPackets < MAX_PACKETS)
+	while (ServersLeft && m_NumPackets < MAX_PACKETS)
 	{
 		int Chunk = ServersLeft;
-		if(Chunk > MAX_MAPS_PER_PACKET)
+		if (Chunk > MAX_MAPS_PER_PACKET)
 			Chunk = MAX_MAPS_PER_PACKET;
 		ServersLeft -= Chunk;
 
@@ -45,13 +47,13 @@ void BuildPackets()
 		mem_copy(m_aPackets[m_NumPackets].m_Data.m_aHeader, VERSIONSRV_MAPLIST, sizeof(VERSIONSRV_MAPLIST));
 
 		// copy map versions
-		for(int i = 0; i < Chunk; i++)
+		for (int i = 0; i < Chunk; i++)
 		{
 			m_aPackets[m_NumPackets].m_Data.m_aMaplist[i] = *pCurrent;
 			pCurrent++;
 		}
 
-		m_aPackets[m_NumPackets].m_Size = sizeof(VERSIONSRV_MAPLIST) + sizeof(CMapVersion)*Chunk;
+		m_aPackets[m_NumPackets].m_Size = sizeof(VERSIONSRV_MAPLIST) + sizeof(CMapVersion) * Chunk;
 
 		m_NumPackets++;
 	}
@@ -84,7 +86,7 @@ int main(int argc, char **argv) // ignore_convention
 	mem_zero(&BindAddr, sizeof(BindAddr));
 	BindAddr.type = NETTYPE_ALL;
 	BindAddr.port = VERSIONSRV_PORT;
-	if(!g_NetOp.Open(BindAddr, 0))
+	if (!g_NetOp.Open(BindAddr, 0))
 	{
 		dbg_msg("mastersrv", "couldn't start network");
 		return -1;
@@ -94,21 +96,21 @@ int main(int argc, char **argv) // ignore_convention
 
 	dbg_msg("versionsrv", "started");
 
-	while(1)
+	while (1)
 	{
 		g_NetOp.Update();
 
 		// process packets
 		CNetChunk Packet;
-		while(g_NetOp.Recv(&Packet))
+		while (g_NetOp.Recv(&Packet))
 		{
-			if(Packet.m_DataSize == sizeof(VERSIONSRV_GETVERSION) &&
+			if (Packet.m_DataSize == sizeof(VERSIONSRV_GETVERSION) &&
 				mem_comp(Packet.m_pData, VERSIONSRV_GETVERSION, sizeof(VERSIONSRV_GETVERSION)) == 0)
 			{
 				SendVer(&Packet.m_Address);
 			}
 
-			if(Packet.m_DataSize == sizeof(VERSIONSRV_GETMAPLIST) &&
+			if (Packet.m_DataSize == sizeof(VERSIONSRV_GETMAPLIST) &&
 				mem_comp(Packet.m_pData, VERSIONSRV_GETMAPLIST, sizeof(VERSIONSRV_GETMAPLIST)) == 0)
 			{
 				CNetChunk p;
@@ -116,7 +118,7 @@ int main(int argc, char **argv) // ignore_convention
 				p.m_Address = Packet.m_Address;
 				p.m_Flags = NETSENDFLAG_CONNLESS;
 
-				for(int i = 0; i < m_NumPackets; i++)
+				for (int i = 0; i < m_NumPackets; i++)
 				{
 					p.m_DataSize = m_aPackets[i].m_Size;
 					p.m_pData = &m_aPackets[i].m_Data;

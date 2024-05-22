@@ -9,25 +9,24 @@ class IConsole : public IInterface
 {
 	MACRO_INTERFACE("console", 0)
 public:
-
 	//	TODO: rework/cleanup
 	enum
 	{
-		OUTPUT_LEVEL_STANDARD=0,
+		OUTPUT_LEVEL_STANDARD = 0,
 		OUTPUT_LEVEL_ADDINFO,
 		OUTPUT_LEVEL_DEBUG,
 		OUTPUT_LEVEL_CHAT,
 		NUM_OUTPUT_LEVELS,
 
-		ACCESS_LEVEL_ADMIN=0,
+		ACCESS_LEVEL_ADMIN = 0,
 		ACCESS_LEVEL_MOD,
 		ACCESS_LEVEL_USER,
 
-		TEMPCMD_NAME_LENGTH=32,
-		TEMPCMD_HELP_LENGTH=96,
-		TEMPCMD_PARAMS_LENGTH=16,
+		TEMPCMD_NAME_LENGTH = 32,
+		TEMPCMD_HELP_LENGTH = 96,
+		TEMPCMD_PARAMS_LENGTH = 16,
 
-		MAX_PRINT_CB=4,
+		MAX_PRINT_CB = 4,
 	};
 
 	// TODO: rework this interface to reduce the amount of virtual calls
@@ -36,6 +35,7 @@ public:
 	protected:
 		unsigned m_NumArgs;
 		int m_ClientID;
+
 	public:
 		IResult() { m_NumArgs = 0; }
 		virtual ~IResult() {}
@@ -54,6 +54,7 @@ public:
 	{
 	protected:
 		int m_AccessLevel;
+
 	public:
 		CCommandInfo() { m_AccessLevel = ACCESS_LEVEL_ADMIN; }
 		virtual ~CCommandInfo() {}

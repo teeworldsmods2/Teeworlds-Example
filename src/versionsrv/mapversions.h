@@ -18,5 +18,5 @@ static CMapVersion s_aMapVersionList[] = {
 	{"dm8", {0x85, 0xf1, 0x1e, 0xd6}, {0x00, 0x00, 0x9e, 0xbd}},
 	{"dm9", {0x42, 0xd4, 0x77, 0x7e}, {0x00, 0x00, 0x20, 0x11}},
 };
-static const int s_NumMapVersionItems = sizeof(s_aMapVersionList)/sizeof(CMapVersion);
+static const int s_NumMapVersionItems = sizeof(s_aMapVersionList) / sizeof(CMapVersion);
 #endif

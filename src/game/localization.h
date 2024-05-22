@@ -15,9 +15,9 @@ class CLocalizationDatabase
 		// TODO: do this as an const char * and put everything on a incremental heap
 		string m_Replacement;
 
-		bool operator <(const CString &Other) const { return m_Hash < Other.m_Hash; }
-		bool operator <=(const CString &Other) const { return m_Hash <= Other.m_Hash; }
-		bool operator ==(const CString &Other) const { return m_Hash == Other.m_Hash; }
+		bool operator<(const CString &Other) const { return m_Hash < Other.m_Hash; }
+		bool operator<=(const CString &Other) const { return m_Hash <= Other.m_Hash; }
+		bool operator==(const CString &Other) const { return m_Hash == Other.m_Hash; }
 	};
 
 	sorted_array<CString> m_Strings;
@@ -43,18 +43,18 @@ class CLocConstString
 	const char *m_pCurrentStr;
 	unsigned m_Hash;
 	int m_Version;
+
 public:
 	CLocConstString(const char *pStr);
 	void Reload();
 
 	inline operator const char *()
 	{
-		if(m_Version != g_Localization.Version())
+		if (m_Version != g_Localization.Version())
 			Reload();
 		return m_pCurrentStr;
 	}
 };
-
 
 extern const char *Localize(const char *pStr);
 #endif

@@ -13,13 +13,14 @@ protected:
 	int m_TickSpeed;
 
 public:
-	class CLocalization* m_pLocalization;
+	class CLocalization *m_pLocalization;
 	enum
 	{
-		AUTHED_NO=0,
+		AUTHED_NO = 0,
 		AUTHED_MOD,
 		AUTHED_ADMIN,
 	};
+
 public:
 	/*
 		Structure: CClientInfo
@@ -30,7 +31,7 @@ public:
 		int m_Latency;
 	};
 
-	inline class CLocalization* Localization() { return m_pLocalization; }
+	inline class CLocalization *Localization() { return m_pLocalization; }
 
 	int Tick() const { return m_CurrentGameTick; }
 	int TickSpeed() const { return m_TickSpeed; }
@@ -45,11 +46,11 @@ public:
 
 	virtual int SendMsg(CMsgPacker *pMsg, int Flags, int ClientID) = 0;
 
-	template<class T>
+	template <class T>
 	int SendPackMsg(T *pMsg, int Flags, int ClientID)
 	{
 		CMsgPacker Packer(pMsg->MsgID());
-		if(pMsg->Pack(&Packer))
+		if (pMsg->Pack(&Packer))
 			return -1;
 		return SendMsg(&Packer, Flags, ClientID);
 	}
@@ -67,8 +68,8 @@ public:
 
 	enum
 	{
-		RCON_CID_SERV=-1,
-		RCON_CID_VOTE=-2,
+		RCON_CID_SERV = -1,
+		RCON_CID_VOTE = -2,
 	};
 	virtual void SetRconCID(int ClientID) = 0;
 	virtual bool IsAuthed(int ClientID) = 0;
@@ -77,8 +78,8 @@ public:
 	virtual void DemoRecorder_HandleAutoStart() = 0;
 	virtual bool DemoRecorder_IsRecording() = 0;
 
-	virtual const char* GetClientLanguage(int ClientID) = 0;
-	virtual void SetClientLanguage(int ClientID, const char* pLanguage) = 0;
+	virtual const char *GetClientLanguage(int ClientID) = 0;
+	virtual void SetClientLanguage(int ClientID, const char *pLanguage) = 0;
 };
 
 class IGameServer : public IInterface

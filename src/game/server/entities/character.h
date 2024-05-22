@@ -11,8 +11,8 @@
 
 enum
 {
-	WEAPON_GAME = -3, // team switching etc
-	WEAPON_SELF = -2, // console kill command
+	WEAPON_GAME = -3,  // team switching etc
+	WEAPON_SELF = -2,  // console kill command
 	WEAPON_WORLD = -1, // death tiles etc
 };
 
@@ -21,7 +21,7 @@ class CCharacter : public CEntity
 	MACRO_ALLOC_POOL_ID()
 
 public:
-	//character's size
+	// character's size
 	static const int ms_PhysSize = 28;
 
 	CCharacter(CGameWorld *pWorld);
@@ -127,10 +127,9 @@ private:
 	CCharacterCore m_Core;
 
 	// info for dead reckoning
-	int m_ReckoningTick; // tick that we are performing dead reckoning From
-	CCharacterCore m_SendCore; // core that we should send
+	int m_ReckoningTick;			// tick that we are performing dead reckoning From
+	CCharacterCore m_SendCore;		// core that we should send
 	CCharacterCore m_ReckoningCore; // the dead reckoning core
-
 };
 
 #endif

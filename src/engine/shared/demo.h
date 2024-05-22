@@ -22,6 +22,7 @@ class CDemoRecorder : public IDemoRecorder
 
 	void WriteTickMarker(int Tick, int Keyframe);
 	void Write(int Type, const void *pData, int Size);
+
 public:
 	CDemoRecorder(class CSnapshotDelta *pSnapshotDelta);
 
@@ -34,7 +35,7 @@ public:
 
 	bool IsRecording() const { return m_File != 0; }
 
-	int Length() const { return (m_LastTickMarker - m_FirstTick)/SERVER_TICK_SPEED; }
+	int Length() const { return (m_LastTickMarker - m_FirstTick) / SERVER_TICK_SPEED; }
 };
 
 class CDemoPlayer : public IDemoPlayer
@@ -70,7 +71,6 @@ public:
 private:
 	IListner *m_pListner;
 
-
 	// Playback
 	struct CKeyFrame
 	{
@@ -101,7 +101,6 @@ private:
 	int NextFrame();
 
 public:
-
 	CDemoPlayer(class CSnapshotDelta *m_pSnapshotDelta);
 
 	void SetListner(IListner *pListner);

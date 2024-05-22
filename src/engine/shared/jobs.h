@@ -19,6 +19,7 @@ class CJob
 
 	JOBFUNC m_pfnFunc;
 	void *m_pFuncData;
+
 public:
 	CJob()
 	{
@@ -28,13 +29,13 @@ public:
 
 	enum
 	{
-		STATE_PENDING=0,
+		STATE_PENDING = 0,
 		STATE_RUNNING,
 		STATE_DONE
 	};
 
 	int Status() const { return m_Status; }
-	int Result() const {return m_Result; }
+	int Result() const { return m_Result; }
 };
 
 class CJobPool

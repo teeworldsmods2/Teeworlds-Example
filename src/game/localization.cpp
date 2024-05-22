@@ -26,7 +26,7 @@ void CLocConstString::Reload()
 	m_Version = g_Localization.Version();
 	const char *pNewStr = g_Localization.FindString(m_Hash);
 	m_pCurrentStr = pNewStr;
-	if(!m_pCurrentStr)
+	if (!m_pCurrentStr)
 		m_pCurrentStr = m_pDefaultStr;
 }
 
@@ -47,7 +47,7 @@ void CLocalizationDatabase::AddString(const char *pOrgStr, const char *pNewStr)
 bool CLocalizationDatabase::Load(const char *pFilename, IStorage *pStorage, IConsole *pConsole)
 {
 	// empty string means unload
-	if(pFilename[0] == 0)
+	if (pFilename[0] == 0)
 	{
 		m_Strings.clear();
 		m_CurrentVersion = 0;
@@ -55,7 +55,7 @@ bool CLocalizationDatabase::Load(const char *pFilename, IStorage *pStorage, ICon
 	}
 
 	IOHANDLE IoHandle = pStorage->OpenFile(pFilename, IOFLAG_READ, IStorage::TYPE_ALL);
-	if(!IoHandle)
+	if (!IoHandle)
 		return false;
 
 	char aBuf[256];
@@ -67,23 +67,23 @@ bool CLocalizationDatabase::Load(const char *pFilename, IStorage *pStorage, ICon
 	CLineReader LineReader;
 	LineReader.Init(IoHandle);
 	char *pLine;
-	while((pLine = LineReader.Get()))
+	while ((pLine = LineReader.Get()))
 	{
-		if(!str_length(pLine))
+		if (!str_length(pLine))
 			continue;
 
-		if(pLine[0] == '#') // skip comments
+		if (pLine[0] == '#') // skip comments
 			continue;
 
 		str_copy(aOrigin, pLine, sizeof(aOrigin));
 		char *pReplacement = LineReader.Get();
-		if(!pReplacement)
+		if (!pReplacement)
 		{
 			pConsole->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "localization", "unexpected end of file");
 			break;
 		}
 
-		if(pReplacement[0] != '=' || pReplacement[1] != '=' || pReplacement[2] != ' ')
+		if (pReplacement[0] != '=' || pReplacement[1] != '=' || pReplacement[2] != ' ')
 		{
 			str_format(aBuf, sizeof(aBuf), "malform replacement line for '%s'", aOrigin);
 			pConsole->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "localization", aBuf);
@@ -104,7 +104,7 @@ const char *CLocalizationDatabase::FindString(unsigned Hash)
 	CString String;
 	String.m_Hash = Hash;
 	sorted_array<CString>::range r = ::find_binary(m_Strings.all(), String);
-	if(r.empty())
+	if (r.empty())
 		return 0;
 	return r.front().m_Replacement;
 }

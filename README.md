@@ -19,6 +19,13 @@ the game, including new versions, custom maps and much more.
 
 Originally written by Magnus Auvinen.
 
+Social City Mod
+=========
+
+A simple city mod that made with twsmods2.
+---------------------------
+
+
 tw06mod-localization branch
 ---------------------------
 Author: Necropotame, FlowerFell-Sans

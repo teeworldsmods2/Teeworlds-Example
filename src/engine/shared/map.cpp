@@ -8,6 +8,7 @@
 class CMap : public IEngineMap
 {
 	CDataFileReader m_DataFile;
+
 public:
 	CMap() {}
 
@@ -27,7 +28,7 @@ public:
 	virtual bool Load(const char *pMapName)
 	{
 		IStorage *pStorage = Kernel()->RequestInterface<IStorage>();
-		if(!pStorage)
+		if (!pStorage)
 			return false;
 		return m_DataFile.Open(pStorage, pMapName, IStorage::TYPE_ALL);
 	}

@@ -20,7 +20,7 @@ public:
 
 	void TryRespawn();
 	void Respawn();
-	void SetTeam(int Team, bool DoChatMsg=true);
+	void SetTeam(int Team, bool DoChatMsg = true);
 	int GetTeam() const { return m_Team; };
 	int GetCID() const { return m_ClientID; };
 
@@ -35,8 +35,8 @@ public:
 	void KillCharacter(int Weapon = WEAPON_GAME);
 	CCharacter *GetCharacter();
 
-	const char* GetLanguage();
-	void SetLanguage(const char* pLanguage);
+	const char *GetLanguage();
+	void SetLanguage(const char *pLanguage);
 
 	//---------------------------------------------------------
 	// this is used for snapping so we know how we can clip the view for the player

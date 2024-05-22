@@ -18,9 +18,9 @@ class CCollision
 public:
 	enum
 	{
-		COLFLAG_SOLID=1,
-		COLFLAG_DEATH=2,
-		COLFLAG_NOHOOK=4,
+		COLFLAG_SOLID = 1,
+		COLFLAG_DEATH = 2,
+		COLFLAG_NOHOOK = 4,
 	};
 
 	CCollision();

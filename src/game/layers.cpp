@@ -19,17 +19,17 @@ void CLayers::Init(class IKernel *pKernel)
 	m_pMap->GetType(MAPITEMTYPE_GROUP, &m_GroupsStart, &m_GroupsNum);
 	m_pMap->GetType(MAPITEMTYPE_LAYER, &m_LayersStart, &m_LayersNum);
 
-	for(int g = 0; g < NumGroups(); g++)
+	for (int g = 0; g < NumGroups(); g++)
 	{
 		CMapItemGroup *pGroup = GetGroup(g);
-		for(int l = 0; l < pGroup->m_NumLayers; l++)
+		for (int l = 0; l < pGroup->m_NumLayers; l++)
 		{
-			CMapItemLayer *pLayer = GetLayer(pGroup->m_StartLayer+l);
+			CMapItemLayer *pLayer = GetLayer(pGroup->m_StartLayer + l);
 
-			if(pLayer->m_Type == LAYERTYPE_TILES)
+			if (pLayer->m_Type == LAYERTYPE_TILES)
 			{
 				CMapItemLayerTilemap *pTilemap = reinterpret_cast<CMapItemLayerTilemap *>(pLayer);
-				if(pTilemap->m_Flags&TILESLAYERFLAG_GAME)
+				if (pTilemap->m_Flags & TILESLAYERFLAG_GAME)
 				{
 					m_pGameLayer = pTilemap;
 					m_pGameGroup = pGroup;
@@ -40,7 +40,7 @@ void CLayers::Init(class IKernel *pKernel)
 					m_pGameGroup->m_ParallaxX = 100;
 					m_pGameGroup->m_ParallaxY = 100;
 
-					if(m_pGameGroup->m_Version >= 2)
+					if (m_pGameGroup->m_Version >= 2)
 					{
 						m_pGameGroup->m_UseClipping = 0;
 						m_pGameGroup->m_ClipX = 0;
@@ -58,10 +58,10 @@ void CLayers::Init(class IKernel *pKernel)
 
 CMapItemGroup *CLayers::GetGroup(int Index) const
 {
-	return static_cast<CMapItemGroup *>(m_pMap->GetItem(m_GroupsStart+Index, 0, 0));
+	return static_cast<CMapItemGroup *>(m_pMap->GetItem(m_GroupsStart + Index, 0, 0));
 }
 
 CMapItemLayer *CLayers::GetLayer(int Index) const
 {
-	return static_cast<CMapItemLayer *>(m_pMap->GetItem(m_LayersStart+Index, 0, 0));
+	return static_cast<CMapItemLayer *>(m_pMap->GetItem(m_LayersStart + Index, 0, 0));
 }

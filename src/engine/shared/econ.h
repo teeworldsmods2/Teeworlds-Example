@@ -3,12 +3,11 @@
 
 #include "network.h"
 
-
 class CEcon
 {
 	enum
 	{
-		MAX_AUTH_TRIES=3,
+		MAX_AUTH_TRIES = 3,
 	};
 
 	class CClient
@@ -16,7 +15,7 @@ class CEcon
 	public:
 		enum
 		{
-			STATE_EMPTY=0,
+			STATE_EMPTY = 0,
 			STATE_CONNECTED,
 			STATE_AUTHED,
 		};

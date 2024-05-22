@@ -10,7 +10,7 @@
 		Controls the main game logic. Keeping track of team and player score,
 		winning conditions and specific game logic.
 */
-class IGameController
+class CGameController
 {
 	vec2 m_aaSpawnPoints[3][64];
 	int m_aNumSpawnPoints[3];
@@ -28,7 +28,7 @@ protected:
 		{
 			m_Got = false;
 			m_FriendlyTeam = -1;
-			m_Pos = vec2(100,100);
+			m_Pos = vec2(100, 100);
 		}
 
 		vec2 m_Pos;
@@ -45,7 +45,6 @@ protected:
 	void ResetGame();
 
 	char m_aMapWish[128];
-
 
 	int m_RoundStartTick;
 	int m_GameOverTick;
@@ -67,8 +66,8 @@ public:
 	bool IsTeamplay() const;
 	bool IsGameOver() const { return m_GameOverTick != -1; }
 
-	IGameController(class CGameContext *pGameServer);
-	virtual ~IGameController();
+	CGameController(class CGameContext *pGameServer);
+	virtual ~CGameController();
 
 	virtual void DoWincheck();
 
@@ -126,7 +125,6 @@ public:
 				weapon when switching team or player suicides.
 	*/
 	virtual int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon);
-
 
 	virtual void OnPlayerInfoChange(class CPlayer *pP);
 

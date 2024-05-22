@@ -7,7 +7,7 @@ class CKernel : public IKernel
 {
 	enum
 	{
-		MAX_INTERFACES=32,
+		MAX_INTERFACES = 32,
 	};
 
 	class CInterfaceInfo
@@ -28,38 +28,36 @@ class CKernel : public IKernel
 
 	CInterfaceInfo *FindInterfaceInfo(const char *pName)
 	{
-		for(int i = 0; i < m_NumInterfaces; i++)
+		for (int i = 0; i < m_NumInterfaces; i++)
 		{
-			if(str_comp(pName, m_aInterfaces[i].m_aName) == 0)
+			if (str_comp(pName, m_aInterfaces[i].m_aName) == 0)
 				return &m_aInterfaces[i];
 		}
 		return 0x0;
 	}
 
 public:
-
 	CKernel()
 	{
 		m_NumInterfaces = 0;
 	}
 
-
 	virtual bool RegisterInterfaceImpl(const char *pName, IInterface *pInterface)
 	{
 		// TODO: More error checks here
-		if(!pInterface)
+		if (!pInterface)
 		{
 			dbg_msg("kernel", "ERROR: couldn't register interface %s. null pointer given", pName);
 			return false;
 		}
 
-		if(m_NumInterfaces == MAX_INTERFACES)
+		if (m_NumInterfaces == MAX_INTERFACES)
 		{
 			dbg_msg("kernel", "ERROR: couldn't register interface '%s'. maximum of interfaces reached", pName);
 			return false;
 		}
 
-		if(FindInterfaceInfo(pName) != 0)
+		if (FindInterfaceInfo(pName) != 0)
 		{
 			dbg_msg("kernel", "ERROR: couldn't register interface '%s'. interface already exists", pName);
 			return false;
@@ -75,7 +73,7 @@ public:
 
 	virtual bool ReregisterInterfaceImpl(const char *pName, IInterface *pInterface)
 	{
-		if(FindInterfaceInfo(pName) == 0)
+		if (FindInterfaceInfo(pName) == 0)
 		{
 			dbg_msg("kernel", "ERROR: couldn't reregister interface '%s'. interface doesn't exist");
 			return false;
@@ -89,7 +87,7 @@ public:
 	virtual IInterface *RequestInterfaceImpl(const char *pName)
 	{
 		CInterfaceInfo *pInfo = FindInterfaceInfo(pName);
-		if(!pInfo)
+		if (!pInfo)
 		{
 			dbg_msg("kernel", "failed to find interface with the name '%s'", pName);
 			return 0;

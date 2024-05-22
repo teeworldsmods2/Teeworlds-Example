@@ -7,47 +7,49 @@
 #include <base/vmath.h>
 #include <game/server/gameworld.h>
 
-#define MACRO_ALLOC_HEAP() \
-	public: \
-	void *operator new(size_t Size) \
-	{ \
-		void *p = mem_alloc(Size, 1); \
+#define MACRO_ALLOC_HEAP()                    \
+public:                                       \
+	void *operator new(size_t Size)           \
+	{                                         \
+		void *p = mem_alloc(Size, 1);         \
 		/*dbg_msg("", "++ %p %d", p, size);*/ \
-		mem_zero(p, Size); \
-		return p; \
-	} \
-	void operator delete(void *pPtr) \
-	{ \
-		/*dbg_msg("", "-- %p", p);*/ \
-		mem_free(pPtr); \
-	} \
-	private:
+		mem_zero(p, Size);                    \
+		return p;                             \
+	}                                         \
+	void operator delete(void *pPtr)          \
+	{                                         \
+		/*dbg_msg("", "-- %p", p);*/          \
+		mem_free(pPtr);                       \
+	}                                         \
+                                              \
+private:
 
-#define MACRO_ALLOC_POOL_ID() \
-	public: \
+#define MACRO_ALLOC_POOL_ID()                \
+public:                                      \
 	void *operator new(size_t Size, int id); \
-	void operator delete(void *p); \
-	private:
+	void operator delete(void *p);           \
+                                             \
+private:
 
-#define MACRO_ALLOC_POOL_ID_IMPL(POOLTYPE, PoolSize) \
+#define MACRO_ALLOC_POOL_ID_IMPL(POOLTYPE, PoolSize)                       \
 	static char ms_PoolData##POOLTYPE[PoolSize][sizeof(POOLTYPE)] = {{0}}; \
-	static int ms_PoolUsed##POOLTYPE[PoolSize] = {0}; \
-	void *POOLTYPE::operator new(size_t Size, int id) \
-	{ \
-		dbg_assert(sizeof(POOLTYPE) == Size, "size error"); \
-		dbg_assert(!ms_PoolUsed##POOLTYPE[id], "already used"); \
-		/*dbg_msg("pool", "++ %s %d", #POOLTYPE, id);*/ \
-		ms_PoolUsed##POOLTYPE[id] = 1; \
-		mem_zero(ms_PoolData##POOLTYPE[id], Size); \
-		return ms_PoolData##POOLTYPE[id]; \
-	} \
-	void POOLTYPE::operator delete(void *p) \
-	{ \
-		int id = (POOLTYPE*)p - (POOLTYPE*)ms_PoolData##POOLTYPE; \
-		dbg_assert(ms_PoolUsed##POOLTYPE[id], "not used"); \
-		/*dbg_msg("pool", "-- %s %d", #POOLTYPE, id);*/ \
-		ms_PoolUsed##POOLTYPE[id] = 0; \
-		mem_zero(ms_PoolData##POOLTYPE[id], sizeof(POOLTYPE)); \
+	static int ms_PoolUsed##POOLTYPE[PoolSize] = {0};                      \
+	void *POOLTYPE::operator new(size_t Size, int id)                      \
+	{                                                                      \
+		dbg_assert(sizeof(POOLTYPE) == Size, "size error");                \
+		dbg_assert(!ms_PoolUsed##POOLTYPE[id], "already used");            \
+		/*dbg_msg("pool", "++ %s %d", #POOLTYPE, id);*/                    \
+		ms_PoolUsed##POOLTYPE[id] = 1;                                     \
+		mem_zero(ms_PoolData##POOLTYPE[id], Size);                         \
+		return ms_PoolData##POOLTYPE[id];                                  \
+	}                                                                      \
+	void POOLTYPE::operator delete(void *p)                                \
+	{                                                                      \
+		int id = (POOLTYPE *)p - (POOLTYPE *)ms_PoolData##POOLTYPE;        \
+		dbg_assert(ms_PoolUsed##POOLTYPE[id], "not used");                 \
+		/*dbg_msg("pool", "-- %s %d", #POOLTYPE, id);*/                    \
+		ms_PoolUsed##POOLTYPE[id] = 0;                                     \
+		mem_zero(ms_PoolData##POOLTYPE[id], sizeof(POOLTYPE));             \
 	}
 
 /*
@@ -58,15 +60,17 @@ class CEntity
 {
 	MACRO_ALLOC_HEAP()
 
-	friend class CGameWorld;	// entity list handling
+	friend class CGameWorld; // entity list handling
 	CEntity *m_pPrevTypeEntity;
 	CEntity *m_pNextTypeEntity;
 
 	class CGameWorld *m_pGameWorld;
+
 protected:
 	bool m_MarkedForDestroy;
 	int m_ID;
 	int m_ObjType;
+
 public:
 	CEntity(CGameWorld *pGameWorld, int Objtype);
 	virtual ~CEntity();
@@ -74,7 +78,6 @@ public:
 	class CGameWorld *GameWorld() { return m_pGameWorld; }
 	class CGameContext *GameServer() { return GameWorld()->GameServer(); }
 	class IServer *Server() { return GameWorld()->Server(); }
-
 
 	CEntity *TypeNext() { return m_pNextTypeEntity; }
 	CEntity *TypePrev() { return m_pPrevTypeEntity; }

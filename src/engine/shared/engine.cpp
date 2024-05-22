@@ -10,7 +10,6 @@
 #include <engine/shared/config.h>
 #include <engine/shared/network.h>
 
-
 static int HostLookupThread(void *pUser)
 {
 	CHostLookup *pLookup = (CHostLookup *)pUser;
@@ -38,7 +37,7 @@ public:
 	{
 		CEngine *pEngine = static_cast<CEngine *>(pUserData);
 
-		if(pEngine->m_Logging)
+		if (pEngine->m_Logging)
 		{
 			CNetBase::CloseLog();
 			pEngine->m_Logging = false;
@@ -51,7 +50,7 @@ public:
 			str_format(aFilenameSent, sizeof(aFilenameSent), "dumps/network_sent_%s.txt", aBuf);
 			str_format(aFilenameRecv, sizeof(aFilenameRecv), "dumps/network_recv_%s.txt", aBuf);
 			CNetBase::OpenLog(pEngine->m_pStorage->OpenFile(aFilenameSent, IOFLAG_WRITE, IStorage::TYPE_SAVE),
-								pEngine->m_pStorage->OpenFile(aFilenameRecv, IOFLAG_WRITE, IStorage::TYPE_SAVE));
+							  pEngine->m_pStorage->OpenFile(aFilenameRecv, IOFLAG_WRITE, IStorage::TYPE_SAVE));
 			pEngine->m_Logging = true;
 		}
 	}
@@ -64,13 +63,13 @@ public:
 
 		//
 		dbg_msg("engine", "running on %s-%s-%s", CONF_FAMILY_STRING, CONF_PLATFORM_STRING, CONF_ARCH_STRING);
-	#ifdef CONF_ARCH_ENDIAN_LITTLE
+#ifdef CONF_ARCH_ENDIAN_LITTLE
 		dbg_msg("engine", "arch is little endian");
-	#elif defined(CONF_ARCH_ENDIAN_BIG)
+#elif defined(CONF_ARCH_ENDIAN_BIG)
 		dbg_msg("engine", "arch is big endian");
-	#else
+#else
 		dbg_msg("engine", "unknown endian");
-	#endif
+#endif
 
 		// init the network
 		net_init();
@@ -86,17 +85,17 @@ public:
 		m_pConsole = Kernel()->RequestInterface<IConsole>();
 		m_pStorage = Kernel()->RequestInterface<IStorage>();
 
-		if(!m_pConsole || !m_pStorage)
+		if (!m_pConsole || !m_pStorage)
 			return;
 
-		m_pConsole->Register("dbg_dumpmem", "", CFGFLAG_SERVER|CFGFLAG_CLIENT, Con_DbgDumpmem, this, "Dump the memory");
-		m_pConsole->Register("dbg_lognetwork", "", CFGFLAG_SERVER|CFGFLAG_CLIENT, Con_DbgLognetwork, this, "Log the network");
+		m_pConsole->Register("dbg_dumpmem", "", CFGFLAG_SERVER | CFGFLAG_CLIENT, Con_DbgDumpmem, this, "Dump the memory");
+		m_pConsole->Register("dbg_lognetwork", "", CFGFLAG_SERVER | CFGFLAG_CLIENT, Con_DbgLognetwork, this, "Log the network");
 	}
 
 	void InitLogfile()
 	{
 		// open logfile if needed
-		if(g_Config.m_Logfile[0])
+		if (g_Config.m_Logfile[0])
 			dbg_logger_file(g_Config.m_Logfile);
 	}
 
@@ -109,7 +108,7 @@ public:
 
 	void AddJob(CJob *pJob, JOBFUNC pfnFunc, void *pData)
 	{
-		if(g_Config.m_Debug)
+		if (g_Config.m_Debug)
 			dbg_msg("engine", "job added");
 		m_JobPool.Add(pJob, pfnFunc, pData);
 	}
