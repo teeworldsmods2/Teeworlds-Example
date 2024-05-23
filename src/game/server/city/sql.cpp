@@ -62,32 +62,45 @@ static void RegisterThread(void *user)
 	
 	if(GameServer()->m_apPlayers[Data->m_ClientID])
 	{
+		if(GameServer()->m_apPlayers[Data->m_ClientID]->m_AccData.m_UserID)
+		{
+			GameServer()->SendChatTarget(Data->m_ClientID, "You're already logged in!");
+			delete Data;
+			lock_unlock(sql_lock);
+			return;
+		}
 		// Connect to database
 		if(Data->m_SqlData->connect())
 		{
 			try
 			{
-				// check if allready exists
+				bool CanRegister = true;
+				// check if already exists
 				char buf[512];
 				str_format(buf, sizeof(buf), "SELECT * FROM tw_Account WHERE Username='%s';", Data->name);
 				Data->m_SqlData->results = Data->m_SqlData->statement->executeQuery(buf);
 				if(Data->m_SqlData->results->next())
+				{
 					GameServer()->SendChatTarget(Data->m_ClientID, "This username is already in use!");
-
+					CanRegister = false;
+				}
 				str_format(buf, sizeof(buf), "SELECT * FROM tw_Account WHERE Nick='%s';", Data->m_Nick);
 				Data->m_SqlData->results = Data->m_SqlData->statement->executeQuery(buf);
 
 				if(Data->m_SqlData->results->next())
+				{
 					GameServer()->SendChatTarget(Data->m_ClientID, "This nickname is already in use!");
-
+					CanRegister = false;
+				}
+				if(CanRegister)
 				{
 					// create Account \o/
-					str_format(buf, sizeof(buf), "INSERT INTO tw_Account(Username, Password, Nick) VALUES ('%s', '%s', '%s');", 
+					str_format(buf, sizeof(buf), "INSERT INTO tw_Account(Username, Password, Nick, SPoint) VALUES ('%s', '%s', '%s', 300);", 
 					Data->name, Data->pass, Data->m_Nick);
 					
 					Data->m_SqlData->statement->execute(buf);
 					
-					GameServer()->SendChatTarget(Data->m_ClientID, "Acoount was created successfully.");
+					GameServer()->SendChatTarget(Data->m_ClientID, "Account was created successfully.");
 					GameServer()->SendChatTarget(Data->m_ClientID, "You may login now. (/login <user> <pass>)");
 				}
 				
@@ -97,7 +110,7 @@ static void RegisterThread(void *user)
 			}
 			catch (sql::SQLException &e)
 			{
-				dbg_msg("SQL", "ERROR: Could not create Account");
+				dbg_msg("SQL", "ERROR: Could not create Account (%s)", e.what());
 			}
 			
 			// disconnect from database
@@ -132,8 +145,15 @@ static void LoginThread(void *user)
 	
 	CSqlData *Data = (CSqlData *)user;
 	
-	if(GameServer()->m_apPlayers[Data->m_ClientID] && GameServer()->m_apPlayers[Data->m_ClientID]->m_AccData.m_UserID < 0)
+	if(GameServer()->m_apPlayers[Data->m_ClientID])
 	{
+		if(GameServer()->m_apPlayers[Data->m_ClientID]->m_AccData.m_UserID)
+		{
+			GameServer()->SendChatTarget(Data->m_ClientID, "You're already logged in!");
+			delete Data;
+			lock_unlock(sql_lock);
+			return;
+		}
 		// Connect to database
 		if(Data->m_SqlData->connect())
 		{
@@ -161,6 +181,9 @@ static void LoginThread(void *user)
 						// check if Account allready is logged in
 						for(int i = 0; i < MAX_CLIENTS; i++)
 						{
+							if(!GameServer()->m_apPlayers[i])
+								continue;
+
 							if(GameServer()->m_apPlayers[i]->m_AccData.m_UserID == Data->m_SqlData->results->getInt("UserID"))
 							{
 								dbg_msg("SQL", "Account '%s' already is logged in", Data->name);

@@ -1,0 +1,10 @@
+sv_name "My Social City Server"
+sv_motd "Visit https://github.com/TeeworldsMods2/Teeworlds-Example for more infomation"
+sv_rcon_password myrconpassword
+sv_port 8303
+sv_map dd1
+
+sv_sql_user nameless
+sv_sql_pw passwd
+sv_sql_port 3306
+sv_sql_ip localhost

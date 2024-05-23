@@ -37,6 +37,8 @@ void CGameContext::Construct(int Resetting)
 
 	if (Resetting == NO_RESET)
 		m_pVoteOptionHeap = new CHeap();
+
+	m_Sql = new CSQL(this);
 }
 
 CGameContext::CGameContext(int Resetting)
@@ -70,6 +72,8 @@ void CGameContext::Clear()
 	CVoteOptionServer *pVoteOptionLast = m_pVoteOptionLast;
 	int NumVoteOptions = m_NumVoteOptions;
 	CTuningParams Tuning = m_Tuning;
+
+	delete m_Sql;
 
 	m_Resetting = true;
 	this->~CGameContext();
@@ -1415,27 +1419,42 @@ void CGameContext::ConchainSpecialMotdupdate(IConsole::IResult *pResult, void *p
 
 void CGameContext::ConAbout(IConsole::IResult *pResult, void *pUserData)
 {
-	CGameContext *pThis = (CGameContext *)pUserData;
+	CGameContext* pThis = (CGameContext*) pUserData;
+	
+	pThis->SendChatTarget(pResult->GetClientID(), _("{str:name} {str:version} by {str:authors}"), "name", MOD_NAME, "version", MOD_VERSION, "authors", MOD_AUTHORS);
+	
+	if(MOD_CREDITS[0])
+		pThis->SendChatTarget(pResult->GetClientID(), _("Credits: {str:c}"), "c", MOD_CREDITS);
+	if(MOD_THANKS[0])
+		pThis->SendChatTarget(pResult->GetClientID(), _("Thanks to: {str:c}"), "c", MOD_THANKS);
+	if(MOD_SOURCES[0])
+		pThis->SendChatTarget(pResult->GetClientID(), _("Source: {str:c}"), "c", MOD_SOURCES);
+}
 
-	char aBuf[256];
-	str_format(aBuf, sizeof(aBuf), "%s %s by %s", MOD_NAME, MOD_VERSION, MOD_AUTHORS);
-	pThis->Console()->Print(IConsole::OUTPUT_LEVEL_CHAT, "chat", aBuf);
+void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext* pThis = (CGameContext*) pUserData;
+	
+	if(pResult->NumArguments() != 2)
+	{
+		pThis->SendChatTarget(pResult->GetClientID(), _("Usage: /register <Username> <Password>"));
+		return;
+	}
 
-	if (MOD_CREDITS[0])
+	pThis->Sql()->Register(pResult->GetString(0), pResult->GetString(1), pResult->GetClientID(), pThis->Server()->ClientName(pResult->GetClientID()));
+}
+
+void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext* pThis = (CGameContext*) pUserData;
+	
+	if(pResult->NumArguments() != 2)
 	{
-		str_format(aBuf, sizeof(aBuf), "Credits: %s", MOD_CREDITS);
-		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_CHAT, "chat", aBuf);
+		pThis->SendChatTarget(pResult->GetClientID(), _("Usage: /login <Username> <Password>"));
+		return;
 	}
-	if (MOD_THANKS[0])
-	{
-		str_format(aBuf, sizeof(aBuf), "Thanks to: %s", MOD_THANKS);
-		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_CHAT, "chat", aBuf);
-	}
-	if (MOD_SOURCES[0])
-	{
-		str_format(aBuf, sizeof(aBuf), "Sources: %s", MOD_SOURCES);
-		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_CHAT, "chat", aBuf);
-	}
+
+	pThis->Sql()->Login(pResult->GetString(0), pResult->GetString(1), pResult->GetClientID());
 }
 
 void CGameContext::ConLanguage(IConsole::IResult *pResult, void *pUserData)
@@ -1536,6 +1555,9 @@ void CGameContext::OnConsoleInit()
 
 	Console()->Register("about", "", CFGFLAG_CHAT, ConAbout, this, "Show information about the mod");
 	Console()->Register("language", "s", CFGFLAG_CHAT, ConLanguage, this, "Show information about the mod");
+
+	Console()->Register("register", "?s?s", CFGFLAG_CHAT, ConRegister, this, "Show information about the mod");
+	Console()->Register("login", "?s?s", CFGFLAG_CHAT, ConLogin, this, "Show information about the mod");
 
 	Console()->Chain("sv_motd", ConchainSpecialMotdupdate, this);
 }

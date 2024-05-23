@@ -23,6 +23,8 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	SetLanguage(Server()->GetClientLanguage(ClientID));
 
 	m_Authed = IServer::AUTHED_NO;
+
+	m_AccData.m_UserID = 0;
 }
 
 CPlayer::~CPlayer()
